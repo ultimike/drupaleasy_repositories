@@ -1,0 +1,6 @@
+name: DrupalEasy Repositories
+type: module
+description: Module for Intermediate Drupal Module Development workshop.
+package: DrupalEasy
+core: 8.x
+core_version_requirement: ^8 || ^9
