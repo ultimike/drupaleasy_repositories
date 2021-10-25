@@ -2,3 +2,9 @@ services:
   plugin.manager.drupaleasy_repositories:
     class: Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginManager
     parent: default_plugin_manager
+
+  drupaleasy_repositories.event_subscriber:
+    class: Drupal\drupaleasy_repositories\EventSubscriber\DrupaleasyRepositoriesSubscriber
+    arguments: ['@messenger']
+    tags:
+      - { name: event_subscriber }

@@ -3,8 +3,16 @@
 /**
  * @file
  * Primary module hooks for DrupalEasy Repositories module.
- *
- * @DCG
- * This file is no longer required in Drupal 8.
- * @see https://www.drupal.org/node/2217931
  */
+
+use Drupal\drupaleasy_repositories\Event\UserLoginEvent;
+
+/**
+ * Implements hook_user_login().
+ */
+function drupaleasy_repositories_user_login($account) {
+  $event = new UserLoginEvent($account);
+
+  $event_dispatcher = \Drupal::service('event_dispatcher');
+  $event_dispatcher->dispatch(UserLoginEvent::EVENT_NAME, $event);
+}
