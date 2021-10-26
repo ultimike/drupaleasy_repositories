@@ -5,6 +5,10 @@ services:
 
   drupaleasy_repositories.event_subscriber:
     class: Drupal\drupaleasy_repositories\EventSubscriber\DrupaleasyRepositoriesSubscriber
-    arguments: ['@messenger']
+    arguments: ['@messenger', '@drupaleasy_repositories']
     tags:
       - { name: event_subscriber }
+
+  drupaleasy_repositories:
+    class: Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService
+    arguments: ['@plugin.manager.drupaleasy_repositories']
