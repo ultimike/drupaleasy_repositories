@@ -3,6 +3,7 @@
 namespace Drupal\drupaleasy_repositories;
 
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Config\ConfigFactory;
 
 /**
  * This is the main class that calls all the enabled plugins.
@@ -17,13 +18,23 @@ class DrupaleasyRepositoriesService {
   protected $pluginManagerDrupaleasyRepositories;
 
   /**
+   * The config.factory service.
+   *
+   * @var \Drupal\Core\Config\ConfigFactory
+   */
+  protected $configFactory;
+
+  /**
    * Constructs a DrupaleasyRepositories object.
    *
    * @param \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginManager $plugin_manager_drupaleasy_repositories
    *   The plugin.manager.drupaleasy_repositories service.
+   * @param \Drupal\Core\Config\ConfigFactory $config_factory
+   *   The config.factory service.
    */
-  public function __construct(DrupaleasyRepositoriesPluginManager $plugin_manager_drupaleasy_repositories) {
+  public function __construct(DrupaleasyRepositoriesPluginManager $plugin_manager_drupaleasy_repositories, ConfigFactory $config_factory) {
     $this->pluginManagerDrupaleasyRepositories = $plugin_manager_drupaleasy_repositories;
+    $this->configFactory = $config_factory;
   }
 
   /**
@@ -36,6 +47,8 @@ class DrupaleasyRepositoriesService {
    *   TRUE if successful.
    */
   public function updateRepositories(AccountInterface $account) {
+    //$this->pluginManagerDrupaleasyRepositories->getDefinition();
+    $repositories = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
     return TRUE;
   }
 

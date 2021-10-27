@@ -11,4 +11,4 @@ services:
 
   drupaleasy_repositories:
     class: Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService
-    arguments: ['@plugin.manager.drupaleasy_repositories']
+    arguments: ['@plugin.manager.drupaleasy_repositories', '@config.factory']
