@@ -2,7 +2,7 @@
 
 namespace Drupal\drupaleasy_repositories;
 
-use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Config\ConfigFactory;
 
 /**
@@ -40,15 +40,22 @@ class DrupaleasyRepositoriesService {
   /**
    * Update the repository nodes for a given account.
    *
-   * @param Drupal\Core\Session\AccountInterface $account
+   * @param Drupal\Core\Entity\EntityInterface $account
    *   The user account whose repositories to update.
    *
    * @return bool
    *   TRUE if successful.
    */
-  public function updateRepositories(AccountInterface $account) {
-    //$this->pluginManagerDrupaleasyRepositories->getDefinition();
-    $repositories = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
+  public function updateRepositories(EntityInterface $account) {
+    $repository_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
+
+    foreach ($repository_ids as $repository_id) {
+      if (!empty($repository_id)) {
+        /** @var DrupaleasyRepositoriesInterface $repository */
+        $repository = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_id);
+        \Drupal::messenger()->addMessage($repository->label());
+      }
+    }
     return TRUE;
   }
 
