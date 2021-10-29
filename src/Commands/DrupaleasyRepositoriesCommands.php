@@ -67,9 +67,18 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
       $user_storage = $this->entityManager->getStorage('user');
 
       $account = $user_storage->load($options['uid']);
-      if ($this->repositoriesService->updateRepositories($account)) {
-        $this->logger()->notice(dt('Repositories updated.'));
+      if ($account) {
+        if ($this->repositoriesService->updateRepositories($account)) {
+          $this->logger()->notice(dt('Repositories updated.'));
+        }
       }
+      else {
+        $this->logger()->notice(dt('User doesn\'t exist.'));
+      }
+    }
+    else {
+      // @todo Implement checking of all users.
+      $this->logger()->notice(dt('This functionality hasn\'t been implemented yet.'));
     }
 
   }

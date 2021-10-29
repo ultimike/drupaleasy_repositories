@@ -26,17 +26,17 @@ interface DrupaleasyRepositoriesInterface {
    * @return int
    *   The number of repositories.
    */
-  public function getNumberOfRepositories(UserInterface $user);
+  public function count(UserInterface $user);
 
   /**
-   * Authenticates the user on the site.
+   * Queries the repository source for info about each repository.
    *
    * @param Drupal\user\UserInterface $user
    *   The user.
    *
-   * @return class
-   *   The authenticated client object.
+   * @return array
+   *   The name and description of each repository.
    */
-  public function authenticate(UserInterface $user);
+  public function getInfo(UserInterface $user);
 
 }

@@ -4,11 +4,14 @@ namespace Drupal\drupaleasy_repositories;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * This is the main class that calls all the enabled plugins.
  */
 class DrupaleasyRepositoriesService {
+
+  use StringTranslationTrait;
 
   /**
    * The plugin.manager.drupaleasy_repositories service.
@@ -53,7 +56,32 @@ class DrupaleasyRepositoriesService {
       if (!empty($repository_id)) {
         /** @var DrupaleasyRepositoriesInterface $repository */
         $repository = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_id);
-        \Drupal::messenger()->addMessage($repository->label());
+        // @todo Do something (state variable) to limit checking to once/day?
+        \Drupal::messenger()->addMessage($this->t('Processing data from @repo.', ['@repo' => $repository->label()]));
+
+        // Check if repositories exist for this user. If so, return count.
+        if ($count = $repository->count($account)) {
+          \Drupal::messenger()->addMessage($this->t('UID @uid has @count repositories here.', [
+            '@uid' => $account->id(),
+            '@count' => $count,
+          ]));
+        }
+        else {
+          \Drupal::messenger()->addMessage($this->t('UID @uid has no repositories here.', ['@uid' => $account->id()]));
+          return FALSE;
+        }
+
+        // Get name and description of repositories.
+        $repos_info = $repository->getInfo($account);
+        foreach ($repos_info as $info) {
+          \Drupal::messenger()->addMessage($this->t('Found repo @name (@desc)', [
+            '@name' => $info['label'],
+            '@desc' => $info['description'],
+          ]));
+        }
+
+        // Create/update/delete nodes for each repository.
+
       }
     }
     return TRUE;

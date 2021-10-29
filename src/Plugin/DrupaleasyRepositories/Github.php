@@ -27,7 +27,7 @@ class Github extends DrupaleasyRepositoriesPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function getNumberOfRepositories(UserInterface $user) {
+  public function count(UserInterface $user) {
     // From https://github.com/KnpLabs/php-github-api/blob/master/doc/repos.md#get-the-repositories-of-a-specific-user
     // $repos = $client->api('user')->repositories('KnpLabs');
     // Returns a list of repos associated with a user.
