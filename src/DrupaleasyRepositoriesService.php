@@ -83,32 +83,67 @@ class DrupaleasyRepositoriesService {
           return FALSE;
         }
 
+        // Prepare the storage and query stuff.
+        /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
+        $node_storage = $this->entityManager->getStorage('node');
+
         // Get name and description of repositories.
         $repos_info = $repository->getInfo($account);
-        foreach ($repos_info as $info) {
+        foreach ($repos_info as $key => $info) {
           \Drupal::messenger()->addMessage($this->t('Found repo @name (@desc)', [
             '@name' => $info['label'],
             '@desc' => $info['description'],
           ]));
+
+          // Calculate hash value.
+          $hash = md5(serialize($info));
+
+          // Look for repository nodes from this user with matching
+          // machine_name.
+          /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
+          $query = $node_storage->getQuery();
+          $query->condition('type', 'repository')
+            ->condition('uid', $account->id())
+            ->condition('field_machine_name', $key);
+          $results = $query->execute();
+
+          if ($results) {
+            $node = Node::load(reset($results));
+            if ($hash != $node->get('field_hash')->value) {
+              // Something changed, update node.
+              $node->setTitle = $info['label'];
+              $node->set('field_description', $info['description']);
+              $node->set('field_machine_name', $key);
+              $node->set('field_hash', $hash);
+              $node->save();
+            }
+          }
+          else {
+            // Repository node doesn't exist - create a new one.
+            $node = Node::create([
+              'uid' => $account->id(),
+              'type' => 'repository',
+              'title' => $info['label'],
+              'field_description' => $info['description'],
+              'field_machine_name' => $key,
+              'field_hash' => $hash,
+            ]);
+            $node->save();
+          }
         }
 
-        // Gather existing repository nodes for this user.
-        $query = $this->entityManager->getStorage('node')->getQuery();
+        // Remove repository nodes deleted from the source.
+        /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
+        $query = $node_storage->getQuery();
         $query->condition('type', 'repository')
-          ->condition('uid', $account->id());
+          ->condition('uid', $account->id())
+          ->condition('field_machine_name', array_keys($repos_info), 'NOT IN');
         $results = $query->execute();
-        $nodes = Node::loadMultiple($results);
-
-        // Create/update/delete nodes for each repository.
-        foreach ($repos_info as $key => $info) {
-          $node = Node::create([
-            'uid' => $account->id(),
-            'type' => 'repository',
-            'title' => $info['label'],
-            'field_description' => $info['description'],
-            'field_machine_name' => $key,
-          ]);
-          $node->save();
+        if ($results) {
+          $nodes = Node::loadMultiple($results);
+          foreach ($nodes as $node) {
+            $node->delete();
+          }
         }
       }
     }
