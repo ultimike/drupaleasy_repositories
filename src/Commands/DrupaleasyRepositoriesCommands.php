@@ -5,6 +5,7 @@ namespace Drupal\drupaleasy_repositories\Commands;
 use Drush\Commands\DrushCommands;
 use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\drupaleasy_repositories\Batch;
 
 /**
  * A Drush commandfile.
@@ -34,16 +35,26 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
   protected $entityManager;
 
   /**
+   * The DrupalEasy repositories batch service.
+   *
+   * @var Drupal\drupaleasy_repositories\Batch
+   */
+  protected $Batch;
+
+  /**
    * Constructs a DrupaleasyRepositories object.
    *
    * @param \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $repositories_service
    *   The DrupalEasyRepositories service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity_type.manager service.
+   * @param \Drupal\drupaleasy_repositories\Batch $batch
+   *   The DrupalEasy repositories batch service.
    */
-  public function __construct(DrupaleasyRepositoriesService $repositories_service, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(DrupaleasyRepositoriesService $repositories_service, EntityTypeManagerInterface $entity_type_manager, Batch $batch) {
     $this->repositoriesService = $repositories_service;
     $this->entityManager = $entity_type_manager;
+    $this->batch = $batch;
   }
 
   /**
@@ -77,10 +88,12 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
       }
     }
     else {
-      // @todo Implement checking of all users.
-      $this->logger()->notice(dt('This functionality hasn\'t been implemented yet.'));
-    }
+      // Get list of all user IDs to check.
+      // @todo limit to a single role?
 
+      // @todo inject and call Batch->updateAllUserRepositories
+      $this->batch->updateAllUserRepositories();
+    }
   }
 
 }

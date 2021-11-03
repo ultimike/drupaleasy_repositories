@@ -5,6 +5,7 @@
  * Primary module hooks for DrupalEasy Repositories module.
  */
 
+use Drupal\drupaleasy_repositories\Batch;
 use Drupal\drupaleasy_repositories\Event\UserLoginEvent;
 
 /**
@@ -15,4 +16,11 @@ function drupaleasy_repositories_user_login($account) {
 
   $event_dispatcher = \Drupal::service('event_dispatcher');
   $event_dispatcher->dispatch(UserLoginEvent::EVENT_NAME, $event);
+}
+
+/**
+ * Calls the correct method responsible for handling a given batch operation.
+ */
+function drupaleasy_batch_operation(Batch $class, $method, $vars, &$context) {
+  return $class->$method($vars, $context);
 }
