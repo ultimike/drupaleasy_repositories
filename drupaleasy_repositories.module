@@ -20,7 +20,36 @@ function drupaleasy_repositories_user_login($account) {
 
 /**
  * Calls the correct method responsible for handling a given batch operation.
+ *
+ * @param Drupal\drupaleasy_repositories\Batch $class
+ *   Main class with Batch-API related stuff.
+ * @param string $method
+ *   The method on the Batch class to call.
+ * @param array $vars
+ *   Arguments for the Batch class method.
+ * @param array|\ArrayAccess $context
+ *   Batch API context.
  */
-function drupaleasy_batch_operation(Batch $class, $method, $vars, &$context) {
+function drupaleasy_batch_operation(Batch $class, string $method, array $vars, &$context) {
   return $class->$method($vars, $context);
+}
+
+/**
+ * This is the "Finished" function for Batch API process.
+ *
+ * @param bool $success
+ *   Did the batch complete successfully?
+ * @param array $results
+ *   Array of results of batch operations.
+ * @param array $operations
+ *   Array of operations called.
+ */
+function update_all_repositories_finished(bool $success, array $results, array $operations) {
+  if ($success) {
+    $message = t('Updated @num repository nodes.', ['@num' => $results['num']]);
+  }
+  else {
+    $message = t('Finished with an error.');
+  }
+  \Drupal::messenger()->addMessage($message);
 }

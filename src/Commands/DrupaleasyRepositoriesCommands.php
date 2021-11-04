@@ -39,7 +39,7 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
    *
    * @var Drupal\drupaleasy_repositories\Batch
    */
-  protected $Batch;
+  protected $batch;
 
   /**
    * Constructs a DrupaleasyRepositories object.
@@ -90,8 +90,6 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
     else {
       // Get list of all user IDs to check.
       // @todo limit to a single role?
-
-      // @todo inject and call Batch->updateAllUserRepositories
       $this->batch->updateAllUserRepositories();
     }
   }

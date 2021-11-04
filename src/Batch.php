@@ -4,6 +4,7 @@ namespace Drupal\drupaleasy_repositories;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 
 /**
  * Batch service class to integration with Batch API.
@@ -11,6 +12,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 class Batch {
 
   use StringTranslationTrait;
+  use DependencySerializationTrait;
 
   /**
    * The DrupalEasy repositories service.
@@ -52,32 +54,32 @@ class Batch {
     // Create a Batch API item for each user.
     foreach ($users as $key => $user) {
       $operations[] = ['drupaleasy_batch_operation',
-        [$this, 'updateRepositoriesBatch', $key],
+        [$this, 'updateRepositoriesBatch', ['uid' => $key]],
       ];
     }
     $batch = [
       'operations' => $operations,
-      //'finished' => '\Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService::updateAllRepositoriesFinished',
+      'finished' => 'update_all_repositories_finished',
     ];
     batch_set($batch);
-    //$this->logger()->notice(dt('Updating @num users', ['@num' => count($users)]));
     drush_backend_batch_process();
   }
 
   /**
    * Batch process callback from updating user repositories.
    *
-   * @param int $uid
-   *   The user ID to update.
+   * @param array $vars
+   *   Associative array that includes the UID to update.
    * @param object $context
    *   Context for operations.
    */
-  public function updateRepositoriesBatch(int $uid, object &$context) {
+  public function updateRepositoriesBatch(array $vars, object &$context) {
     /** @var \Drupal\Core\Entity\EntityStorageInterface $user_storage */
     $user_storage = $this->entityTypeManager->getStorage('user');
-    $account = $user_storage->load($uid);
+    $account = $user_storage->load($vars['uid']);
     $this->drupaleasyRepositoriesService->updateRepositories($account);
-    $context['results'][] = $uid;
+    $context['results'][] = $vars['uid'];
+    $context['results']['num']++;
     $context['message'] = $this->t('Updating repositories belonging to "@username".',
       ['@username' => $account->label()]
     );
