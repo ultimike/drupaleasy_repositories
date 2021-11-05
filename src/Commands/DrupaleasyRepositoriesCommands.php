@@ -90,7 +90,7 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
     else {
       // Get list of all user IDs to check.
       // @todo limit to a single role?
-      $this->batch->updateAllUserRepositories();
+      $this->batch->updateAllUserRepositories(TRUE);
     }
   }
 

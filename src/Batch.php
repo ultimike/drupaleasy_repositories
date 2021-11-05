@@ -44,7 +44,7 @@ class Batch {
   /**
    * Updates all user repositories using the Batch API.
    */
-  public function updateAllUserRepositories() {
+  public function updateAllUserRepositories(bool $drush = FALSE) {
     /** @var \Drupal\Core\Entity\EntityStorageInterface $user_storage */
     $user_storage = $this->entityTypeManager->getStorage('user');
     $query = $user_storage->getQuery();
@@ -62,7 +62,9 @@ class Batch {
       'finished' => 'update_all_repositories_finished',
     ];
     batch_set($batch);
-    drush_backend_batch_process();
+    if ($drush) {
+      drush_backend_batch_process();
+    }
   }
 
   /**
@@ -70,10 +72,12 @@ class Batch {
    *
    * @param array $vars
    *   Associative array that includes the UID to update.
-   * @param object $context
-   *   Context for operations.
+   * @param array|\ArrayAccess $context
+   *   Context for operations. We do not want to typehit this as an array or
+   *   an object as sometimes it is an array (when calling from a form) and
+   *   sometimes it is an object (when calling from Drush).
    */
-  public function updateRepositoriesBatch(array $vars, object &$context) {
+  public function updateRepositoriesBatch(array $vars, &$context) {
     /** @var \Drupal\Core\Entity\EntityStorageInterface $user_storage */
     $user_storage = $this->entityTypeManager->getStorage('user');
     $account = $user_storage->load($vars['uid']);
