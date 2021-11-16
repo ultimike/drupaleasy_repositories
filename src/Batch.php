@@ -12,7 +12,6 @@ use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 class Batch {
 
   use StringTranslationTrait;
-  use DependencySerializationTrait;
 
   /**
    * The DrupalEasy repositories service.
@@ -52,14 +51,13 @@ class Batch {
     $users = $query->execute();
 
     // Create a Batch API item for each user.
-    foreach ($users as $key => $user) {
-      $operations[] = ['drupaleasy_batch_operation',
-        [$this, 'updateRepositoriesBatch', ['uid' => $key]],
-      ];
+    foreach ($users as $uid => $user) {
+      $operations[] = ['drupaleasy_update_repositories_batch_operation', [$uid]];
     }
     $batch = [
       'operations' => $operations,
-      'finished' => 'update_all_repositories_finished',
+      'finished' => 'drupaleasy_update_all_repositories_finished',
+      'file' => drupal_get_path('module', 'drupaleasy_repositories') . '/drupaleasy_repositories.batch.inc',
     ];
     batch_set($batch);
     if ($drush) {
@@ -70,19 +68,19 @@ class Batch {
   /**
    * Batch process callback from updating user repositories.
    *
-   * @param array $vars
-   *   Associative array that includes the UID to update.
+   * @param int $uid
+   *   User ID to update.
    * @param array|\ArrayAccess $context
    *   Context for operations. We do not want to typehit this as an array or
    *   an object as sometimes it is an array (when calling from a form) and
    *   sometimes it is an object (when calling from Drush).
    */
-  public function updateRepositoriesBatch(array $vars, &$context) {
+  public function updateRepositoriesBatch($uid, &$context) {
     /** @var \Drupal\Core\Entity\EntityStorageInterface $user_storage */
     $user_storage = $this->entityTypeManager->getStorage('user');
-    $account = $user_storage->load($vars['uid']);
+    $account = $user_storage->load($uid);
     $this->drupaleasyRepositoriesService->updateRepositories($account);
-    $context['results'][] = $vars['uid'];
+    $context['results'][] = $uid;
     $context['results']['num']++;
     $context['message'] = $this->t('Updating repositories belonging to "@username".',
       ['@username' => $account->label()]

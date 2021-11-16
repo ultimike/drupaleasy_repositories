@@ -62,17 +62,18 @@ class DrupaleasyRepositoriesService {
    *   TRUE if successful.
    */
   public function updateRepositories(EntityInterface $account) {
-    $repository_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
+    $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
 
-    foreach ($repository_ids as $repository_id) {
-      if (!empty($repository_id)) {
+    foreach ($repository_location_ids as $repository_location_id) {
+      if (!empty($repository_location_id)) {
         /** @var DrupaleasyRepositoriesInterface $repository */
-        $repository = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_id);
+        $repository_location = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
         // @todo Do something (state variable) to limit checking to once/day?
-        \Drupal::messenger()->addMessage($this->t('Processing data from @repo.', ['@repo' => $repository->label()]));
+        \Drupal::messenger()->addMessage($this->t('Processing data from @repo.', ['@repo' => $repository_location->label()]));
 
-        // Check if repositories exist for this user. If so, return count.
-        if ($count = $repository->count($account)) {
+        // Check if repositories exist at this location for this user. If so,
+        // return count.
+        if ($count = $repository_location->count($account)) {
           \Drupal::messenger()->addMessage($this->t('UID @uid has @count repositories here.', [
             '@uid' => $account->id(),
             '@count' => $count,
@@ -83,68 +84,87 @@ class DrupaleasyRepositoriesService {
           return FALSE;
         }
 
-        // Prepare the storage and query stuff.
-        /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
-        $node_storage = $this->entityManager->getStorage('node');
+        // Get name and description of each repository at this location.
+        $repos_info = $repository_location->getInfo($account);
 
-        // Get name and description of repositories.
-        $repos_info = $repository->getInfo($account);
-        foreach ($repos_info as $key => $info) {
-          \Drupal::messenger()->addMessage($this->t('Found repo @name (@desc)', [
-            '@name' => $info['label'],
-            '@desc' => $info['description'],
-          ]));
+        $this->updateRepositoryNodes($repos_info, $account);
 
-          // Calculate hash value.
-          $hash = md5(serialize($info));
+      }
+    }
+    // @todo Do something better with this.
+    return TRUE;
+  }
 
-          // Look for repository nodes from this user with matching
-          // machine_name.
-          /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
-          $query = $node_storage->getQuery();
-          $query->condition('type', 'repository')
-            ->condition('uid', $account->id())
-            ->condition('field_machine_name', $key);
-          $results = $query->execute();
+  /**
+   * Update repository nodes for a given user.
+   *
+   * @param array $repos_info
+   *   Repository info from API call.
+   * @param Drupal\Core\Entity\EntityInterface $account
+   *   The user account whose repositories to update.
+   *
+   * @return bool
+   *   TRUE if successful.
+   */
+  protected function updateRepositoryNodes(array $repos_info, EntityInterface $account) {
+    // Prepare the storage and query stuff.
+    /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
+    $node_storage = $this->entityManager->getStorage('node');
 
-          if ($results) {
-            $node = Node::load(reset($results));
-            if ($hash != $node->get('field_hash')->value) {
-              // Something changed, update node.
-              $node->setTitle = $info['label'];
-              $node->set('field_description', $info['description']);
-              $node->set('field_machine_name', $key);
-              $node->set('field_hash', $hash);
-              $node->save();
-            }
-          }
-          else {
-            // Repository node doesn't exist - create a new one.
-            $node = Node::create([
-              'uid' => $account->id(),
-              'type' => 'repository',
-              'title' => $info['label'],
-              'field_description' => $info['description'],
-              'field_machine_name' => $key,
-              'field_hash' => $hash,
-            ]);
-            $node->save();
-          }
+    foreach ($repos_info as $key => $info) {
+      \Drupal::messenger()->addMessage($this->t('Found repo @name (@desc)', [
+        '@name' => $info['label'],
+        '@desc' => $info['description'],
+      ]));
+
+      // Calculate hash value.
+      $hash = md5(serialize($info));
+
+      // Look for repository nodes from this user with matching
+      // machine_name.
+      /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
+      $query = $node_storage->getQuery();
+      $query->condition('type', 'repository')
+        ->condition('uid', $account->id())
+        ->condition('field_machine_name', $key);
+      $results = $query->execute();
+
+      if ($results) {
+        $node = Node::load(reset($results));
+        if ($hash != $node->get('field_hash')->value) {
+          // Something changed, update node.
+          $node->setTitle = $info['label'];
+          $node->set('field_description', $info['description']);
+          $node->set('field_machine_name', $key);
+          $node->set('field_hash', $hash);
+          $node->save();
         }
+      }
+      else {
+        // Repository node doesn't exist - create a new one.
+        $node = Node::create([
+          'uid' => $account->id(),
+          'type' => 'repository',
+          'title' => $info['label'],
+          'field_description' => $info['description'],
+          'field_machine_name' => $key,
+          'field_hash' => $hash,
+        ]);
+        $node->save();
+      }
+    }
 
-        // Remove repository nodes deleted from the source.
-        /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
-        $query = $node_storage->getQuery();
-        $query->condition('type', 'repository')
-          ->condition('uid', $account->id())
-          ->condition('field_machine_name', array_keys($repos_info), 'NOT IN');
-        $results = $query->execute();
-        if ($results) {
-          $nodes = Node::loadMultiple($results);
-          foreach ($nodes as $node) {
-            $node->delete();
-          }
-        }
+    // Remove repository nodes deleted from the source.
+    /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
+    $query = $node_storage->getQuery();
+    $query->condition('type', 'repository')
+      ->condition('uid', $account->id())
+      ->condition('field_machine_name', array_keys($repos_info), 'NOT IN');
+    $results = $query->execute();
+    if ($results) {
+      $nodes = Node::loadMultiple($results);
+      foreach ($nodes as $node) {
+        $node->delete();
       }
     }
     return TRUE;
