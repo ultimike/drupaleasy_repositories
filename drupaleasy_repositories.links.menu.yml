@@ -4,9 +4,3 @@ drupaleasy_repositories.settings:
   parent: system.admin_config_services
   route_name: drupaleasy_repositories.settings
   weight: 10
-drupaleasy_repositories.update_repositories:
-  title: DrupalEasy repositories - update
-  description: DrupalEasy repositories update.
-  parent: system.admin_config_services
-  route_name: drupaleasy_repositories.update_repositories
-  weight: 20

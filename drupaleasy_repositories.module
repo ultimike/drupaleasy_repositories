@@ -16,3 +16,25 @@ function drupaleasy_repositories_user_login($account) {
   $event_dispatcher = \Drupal::service('event_dispatcher');
   $event_dispatcher->dispatch(UserLoginEvent::EVENT_NAME, $event);
 }
+
+/**
+ * Implements hook_cron().
+ */
+function drupaleasy_repositories_cron() {
+  // Update repository nodes once per day, only between 1am and 2am UTC.
+  // Assumes cron runs every hour.
+  // Gets the current UTC hour.
+  $hour = time() / 3600 % 24;
+  if ($hour == 1) {
+    $user_storage = \Drupal::service('entity_type.manager')->getStorage('user');
+    $query = $user_storage->getQuery();
+    $query->condition('status', '1');
+    $users = $query->execute();
+
+    // Create a Queue API item for each user.
+    foreach ($users as $uid => $user) {
+      $queue = \Drupal::queue('drupaleasy_repositories_repository_node_updater');
+      $queue->createItem(['uid' => $uid]);
+    }
+  }
+}

@@ -4,7 +4,6 @@ namespace Drupal\drupaleasy_repositories;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 
 /**
  * Batch service class to integration with Batch API.
@@ -18,7 +17,7 @@ class Batch {
    *
    * @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService
    */
-  protected $drupaleasyRepositoriesService;
+  protected $repositoriesService;
 
   /**
    * The entity type manager service.
@@ -36,7 +35,7 @@ class Batch {
    *   The entity type manager service.
    */
   public function __construct(DrupaleasyRepositoriesService $drupaleasy_repositories_service, EntityTypeManagerInterface $entity_type_manager) {
-    $this->drupaleasyRepositoriesService = $drupaleasy_repositories_service;
+    $this->repositoriesService = $drupaleasy_repositories_service;
     $this->entityTypeManager = $entity_type_manager;
   }
 
@@ -79,7 +78,7 @@ class Batch {
     /** @var \Drupal\Core\Entity\EntityStorageInterface $user_storage */
     $user_storage = $this->entityTypeManager->getStorage('user');
     $account = $user_storage->load($uid);
-    $this->drupaleasyRepositoriesService->updateRepositories($account);
+    $this->repositoriesService->updateRepositories($account);
     $context['results'][] = $uid;
     $context['results']['num']++;
     $context['message'] = $this->t('Updating repositories belonging to "@username".',
