@@ -1,6 +1,11 @@
 {
-    "name": "org/drupaleasy_repositories",
-    "type": "drupal-drush",
+    "name": "drupaleasy/drupaleasy_repositories",
+    "type": "drupal-module",
+    "require": {
+        "knplabs/github-api": "^3.3",
+        "symfony/http-client": "^5.3",
+        "nyholm/psr7": "^1.0"
+    },
     "extra": {
         "drush": {
             "services": {
