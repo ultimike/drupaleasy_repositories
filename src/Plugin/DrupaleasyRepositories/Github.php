@@ -4,6 +4,8 @@ namespace Drupal\drupaleasy_repositories\Plugin\DrupaleasyRepositories;
 
 use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginBase;
 use Drupal\user\UserInterface;
+use Github\Client;
+use Symfony\Component\HttpClient\HttplugClient;
 
 /**
  * Plugin implementation of the drupaleasy_repositories.
@@ -20,7 +22,7 @@ class Github extends DrupaleasyRepositoriesPluginBase {
    * {@inheritdoc}
    */
   public function authenticate(UserInterface $user) {
-    $client = $this->getClient();
+    $client = Client::createWithHttpClient(new HttplugClient());
     return $client;
   }
 
@@ -28,10 +30,35 @@ class Github extends DrupaleasyRepositoriesPluginBase {
    * {@inheritdoc}
    */
   public function count(UserInterface $user) {
-    // From https://github.com/KnpLabs/php-github-api/blob/master/doc/repos.md#get-the-repositories-of-a-specific-user
-    // $repos = $client->api('user')->repositories('KnpLabs');
-    // Returns a list of repos associated with a user.
-    return rand(0, 10);
+    $client = $this->authenticate($user);
+    try {
+      $repos = $client->api('user')->repositories($user->label());
+    }
+    catch (\Throwable $th) {
+      return NULL;
+    }
+    return count($repos);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getInfo(UserInterface $user) {
+    $client = $this->authenticate($user);
+    try {
+      $repos = $client->api('user')->repositories($user->label());
+    }
+    catch (\Throwable $th) {
+      return NULL;
+    }
+
+    foreach ($repos as $remote_repo) {
+      $repositories[$remote_repo['full_name']] = [
+        'label' => $remote_repo['name'],
+        'description' => $remote_repo['description'],
+      ];
+    }
+    return $repositories;
   }
 
 }

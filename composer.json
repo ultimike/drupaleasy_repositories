@@ -1,6 +1,7 @@
 {
     "name": "drupaleasy/drupaleasy_repositories",
-    "type": "drupal-module",
+    "type": "drupal-custom-module",
+    "version": "1.0.0",
     "require": {
         "knplabs/github-api": "^3.3",
         "symfony/http-client": "^5.3",
