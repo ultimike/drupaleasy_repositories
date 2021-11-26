@@ -76,9 +76,23 @@ class YamlFile extends DrupaleasyRepositoriesPluginBase implements ContainerFact
   public function getInfo(UserInterface $user) {
     if ($filename = $this->authenticate($user)) {
       $repos = Yaml::decode(file_get_contents($filename));
+      array_walk($repos, ['self', 'addSource']);
       return $repos;
     }
     return NULL;
+  }
+
+  /**
+   * Callback function for array_walk to add source value.
+   *
+   * @param array $item
+   *   The array item.
+   * @param string $key
+   *   The array key.
+   */
+  protected function addSource(array &$item, string $key) {
+    // This needs to be the same as the plugin ID.
+    $item['source'] = 'yaml';
   }
 
 }

@@ -87,7 +87,7 @@ class DrupaleasyRepositoriesService {
         // Get name and description of each repository at this location.
         $repos_info = $repository_location->getInfo($account);
 
-        $this->updateRepositoryNodes($repos_info, $account);
+        $this->updateRepositoryNodes($repos_info, $account, $repository_location_id);
 
       }
     }
@@ -106,7 +106,7 @@ class DrupaleasyRepositoriesService {
    * @return bool
    *   TRUE if successful.
    */
-  protected function updateRepositoryNodes(array $repos_info, EntityInterface $account) {
+  protected function updateRepositoryNodes(array $repos_info, EntityInterface $account, string $repository_location_id) {
     // Prepare the storage and query stuff.
     /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
     $node_storage = $this->entityManager->getStorage('node');
@@ -126,7 +126,8 @@ class DrupaleasyRepositoriesService {
       $query = $node_storage->getQuery();
       $query->condition('type', 'repository')
         ->condition('uid', $account->id())
-        ->condition('field_machine_name', $key);
+        ->condition('field_machine_name', $key)
+        ->condition('field_source', $repository_location_id);
       $results = $query->execute();
 
       if ($results) {
@@ -136,6 +137,9 @@ class DrupaleasyRepositoriesService {
           $node->setTitle = $info['label'];
           $node->set('field_description', $info['description']);
           $node->set('field_machine_name', $key);
+          $node->set('field_number_of_issues', $info['num_open_issues']);
+          $node->set('field_source', $info['source']);
+          $node->set('field_url', $info['url']);
           $node->set('field_hash', $hash);
           $node->save();
         }
@@ -148,6 +152,9 @@ class DrupaleasyRepositoriesService {
           'title' => $info['label'],
           'field_description' => $info['description'],
           'field_machine_name' => $key,
+          'field_number_of_issues' => $info['num_open_issues'],
+          'field_source' => $info['source'],
+          'field_url' => $info['url'],
           'field_hash' => $hash,
         ]);
         $node->save();
@@ -159,7 +166,8 @@ class DrupaleasyRepositoriesService {
     $query = $node_storage->getQuery();
     $query->condition('type', 'repository')
       ->condition('uid', $account->id())
-      ->condition('field_machine_name', array_keys($repos_info), 'NOT IN');
+      ->condition('field_machine_name', array_keys($repos_info), 'NOT IN')
+      ->condition('field_source', $repository_location_id);
     $results = $query->execute();
     if ($results) {
       $nodes = Node::loadMultiple($results);
