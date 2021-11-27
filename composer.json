@@ -5,7 +5,8 @@
     "require": {
         "knplabs/github-api": "^3.3",
         "symfony/http-client": "^5.3",
-        "nyholm/psr7": "^1.0"
+        "nyholm/psr7": "^1.0",
+        "drupal/key": "^1.0"
     },
     "extra": {
         "drush": {

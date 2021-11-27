@@ -6,6 +6,9 @@ use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginBase;
 use Drupal\user\UserInterface;
 use Github\Client;
 use Symfony\Component\HttpClient\HttplugClient;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Key\KeyRepositoryInterface;
 
 /**
  * Plugin implementation of the drupaleasy_repositories.
@@ -16,7 +19,7 @@ use Symfony\Component\HttpClient\HttplugClient;
  *   description = @Translation("Github.com")
  * )
  */
-class Github extends DrupaleasyRepositoriesPluginBase {
+class Github extends DrupaleasyRepositoriesPluginBase implements ContainerFactoryPluginInterface {
 
   /**
    * The Github client.
@@ -26,11 +29,39 @@ class Github extends DrupaleasyRepositoriesPluginBase {
   protected $client;
 
   /**
+   * The Key repository service.
+   *
+   * @var Drupal\Key\KeyRepositoryInterface
+   */
+  protected $keyRepository;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('key.repository')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, KeyRepositoryInterface $key_repository) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->keyRepository = $key_repository;
+  }
+
+  /**
    * {@inheritdoc}
    */
   protected function authenticate() {
     $this->client = Client::createWithHttpClient(new HttplugClient());
-    $this->client->authenticate('ultimike', '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', CLIENT::AUTH_CLIENT_ID);
+    $github_key = $this->keyRepository->getKey('github')->getKeyValue();
+    $this->client->authenticate('ultimike', $github_key, CLIENT::AUTH_CLIENT_ID);
   }
 
   /**
