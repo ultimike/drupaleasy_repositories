@@ -102,6 +102,8 @@ class DrupaleasyRepositoriesService {
    *   Repository info from API call.
    * @param Drupal\Core\Entity\EntityInterface $account
    *   The user account whose repositories to update.
+   * @param string $repository_location_id
+   *   The repository location ID.
    *
    * @return bool
    *   TRUE if successful.

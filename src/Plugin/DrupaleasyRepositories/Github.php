@@ -5,10 +5,12 @@ namespace Drupal\drupaleasy_repositories\Plugin\DrupaleasyRepositories;
 use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginBase;
 use Drupal\user\UserInterface;
 use Github\Client;
+use Github\Exception\RuntimeException;
 use Symfony\Component\HttpClient\HttplugClient;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Key\KeyRepositoryInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Plugin implementation of the drupaleasy_repositories.
@@ -20,6 +22,8 @@ use Drupal\Key\KeyRepositoryInterface;
  * )
  */
 class Github extends DrupaleasyRepositoriesPluginBase implements ContainerFactoryPluginInterface {
+
+  use StringTranslationTrait;
 
   /**
    * The Github client.
@@ -60,47 +64,66 @@ class Github extends DrupaleasyRepositoriesPluginBase implements ContainerFactor
    */
   protected function authenticate() {
     $this->client = Client::createWithHttpClient(new HttplugClient());
-    $github_key = $this->keyRepository->getKey('github')->getKeyValue();
-    $this->client->authenticate('ultimike', $github_key, CLIENT::AUTH_CLIENT_ID);
+    $github_key = $this->keyRepository->getKey('github')->getKeyValues();
+    $this->client->authenticate($github_key['username'], $github_key['personal_access_token'], CLIENT::AUTH_CLIENT_ID);
   }
 
   /**
    * {@inheritdoc}
    */
   public function count(UserInterface $user) {
-    $this->authenticate();
-    try {
-      $repos = $this->client->api('user')->repositories($user->label());
+    $repos = $this->getRepos($user);
+    if ($repos) {
+      return count($repos);
     }
-    catch (\Throwable $th) {
-      return NULL;
-    }
-    return count($repos);
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getInfo(UserInterface $user) {
+    $repos = $this->getRepos($user);
+
+    if (count($repos)) {
+      foreach ($repos as $remote_repo) {
+        $repositories[$remote_repo['full_name']] = [
+          'label' => $remote_repo['name'],
+          'description' => $remote_repo['description'],
+          'num_open_issues' => $remote_repo['open_issues_count'],
+          // This needs to be the same as the plugin ID.
+          'source' => 'github',
+          'url' => $remote_repo['html_url'],
+        ];
+      }
+      return $repositories;
+    }
+    return NULL;
+  }
+
+  /**
+   * Gets repositories from Github.
+   *
+   * @param Drupal\user\UserInterface $user
+   *   The user whose repositories to get.
+   *
+   * @return array
+   *   The repositories.
+   */
+  protected function getRepos(UserInterface $user) {
     $this->authenticate();
     try {
-      $repos = $this->client->api('user')->repositories($user->label());
+      return $this->client->api('user')->repositories($user->label());
+    }
+    catch (RuntimeException $th) {
+      \Drupal::messenger()->addMessage($this->t('Github error: @error', [
+        '@error' => $th->getMessage(),
+      ]));
+      return NULL;
     }
     catch (\Throwable $th) {
       return NULL;
     }
-
-    foreach ($repos as $remote_repo) {
-      $repositories[$remote_repo['full_name']] = [
-        'label' => $remote_repo['name'],
-        'description' => $remote_repo['description'],
-        'num_open_issues' => $remote_repo['open_issues_count'],
-        // This needs to be the same as the plugin ID.
-        'source' => 'github',
-        'url' => $remote_repo['html_url'],
-      ];
-    }
-    return $repositories;
   }
 
 }
