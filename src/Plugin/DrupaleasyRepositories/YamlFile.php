@@ -4,7 +4,6 @@ namespace Drupal\drupaleasy_repositories\Plugin\DrupaleasyRepositories;
 
 use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginBase;
 use Drupal\user\UserInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Component\Serialization\Yaml;
@@ -18,7 +17,7 @@ use Drupal\Component\Serialization\Yaml;
  *   description = @Translation("Yaml file")
  * )
  */
-class YamlFile extends DrupaleasyRepositoriesPluginBase implements ContainerFactoryPluginInterface {
+class YamlFile extends DrupaleasyRepositoriesPluginBase {
 
   /**
    * The file_system service.

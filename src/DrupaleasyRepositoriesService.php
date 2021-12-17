@@ -2,7 +2,7 @@
 
 namespace Drupal\drupaleasy_repositories;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\user\UserInterface;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\node\Entity\Node;
@@ -37,6 +37,15 @@ class DrupaleasyRepositoriesService {
   protected $entityManager;
 
   /**
+   * The dry-run parameter.
+   *
+   * When set to "true", no nodes are creaated, updated, or deleted.
+   *
+   * @var bool
+   */
+  protected $dryRun;
+
+  /**
    * Constructs a DrupaleasyRepositories object.
    *
    * @param \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginManager $plugin_manager_drupaleasy_repositories
@@ -45,23 +54,26 @@ class DrupaleasyRepositoriesService {
    *   The config.factory service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity_type.manager service.
+   * @param bool $dry_run
+   *   The dry_run parameter.
    */
-  public function __construct(DrupaleasyRepositoriesPluginManager $plugin_manager_drupaleasy_repositories, ConfigFactory $config_factory, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(DrupaleasyRepositoriesPluginManager $plugin_manager_drupaleasy_repositories, ConfigFactory $config_factory, EntityTypeManagerInterface $entity_type_manager, bool $dry_run) {
     $this->pluginManagerDrupaleasyRepositories = $plugin_manager_drupaleasy_repositories;
     $this->configFactory = $config_factory;
     $this->entityManager = $entity_type_manager;
+    $this->dryRun = $dry_run;
   }
 
   /**
    * Update the repository nodes for a given account.
    *
-   * @param Drupal\Core\Entity\EntityInterface $account
+   * @param Drupal\user\UserInterface $account
    *   The user account whose repositories to update.
    *
    * @return bool
    *   TRUE if successful.
    */
-  public function updateRepositories(EntityInterface $account) {
+  public function updateRepositories(UserInterface $account) {
     $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
 
     foreach ($repository_location_ids as $repository_location_id) {
@@ -100,7 +112,7 @@ class DrupaleasyRepositoriesService {
    *
    * @param array $repos_info
    *   Repository info from API call.
-   * @param Drupal\Core\Entity\EntityInterface $account
+   * @param Drupal\user\UserInterface $account
    *   The user account whose repositories to update.
    * @param string $repository_location_id
    *   The repository location ID.
@@ -108,7 +120,7 @@ class DrupaleasyRepositoriesService {
    * @return bool
    *   TRUE if successful.
    */
-  protected function updateRepositoryNodes(array $repos_info, EntityInterface $account, string $repository_location_id) {
+  protected function updateRepositoryNodes(array $repos_info, UserInterface $account, string $repository_location_id) {
     // Prepare the storage and query stuff.
     /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
     $node_storage = $this->entityManager->getStorage('node');
@@ -143,7 +155,9 @@ class DrupaleasyRepositoriesService {
           $node->set('field_source', $info['source']);
           $node->set('field_url', $info['url']);
           $node->set('field_hash', $hash);
-          $node->save();
+          if (!$this->dryRun) {
+            $node->save();
+          }
         }
       }
       else {
@@ -159,7 +173,9 @@ class DrupaleasyRepositoriesService {
           'field_url' => $info['url'],
           'field_hash' => $hash,
         ]);
-        $node->save();
+        if (!$this->dryRun) {
+          $node->save();
+        }
       }
     }
 
@@ -174,7 +190,9 @@ class DrupaleasyRepositoriesService {
     if ($results) {
       $nodes = Node::loadMultiple($results);
       foreach ($nodes as $node) {
-        $node->delete();
+        if (!$this->dryRun) {
+          $node->delete();
+        }
       }
     }
     return TRUE;

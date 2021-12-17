@@ -7,7 +7,6 @@ use Drupal\user\UserInterface;
 use Github\Client;
 use Github\Exception\RuntimeException;
 use Symfony\Component\HttpClient\HttplugClient;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Key\KeyRepositoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -21,7 +20,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
  *   description = @Translation("Github.com")
  * )
  */
-class Github extends DrupaleasyRepositoriesPluginBase implements ContainerFactoryPluginInterface {
+class Github extends DrupaleasyRepositoriesPluginBase {
 
   use StringTranslationTrait;
 

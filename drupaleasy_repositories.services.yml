@@ -1,3 +1,6 @@
+parameters:
+  drupaleasy_repositories.dry_run: false
+
 services:
   plugin.manager.drupaleasy_repositories:
     class: Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginManager
@@ -11,8 +14,9 @@ services:
 
   drupaleasy_repositories.service:
     class: Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService
-    arguments: ['@plugin.manager.drupaleasy_repositories', '@config.factory', '@entity_type.manager']
+    arguments: ['@plugin.manager.drupaleasy_repositories', '@config.factory', '@entity_type.manager', '%drupaleasy_repositories.dry_run%']
 
   drupaleasy_repositories.batch:
     class: Drupal\drupaleasy_repositories\Batch
     arguments: ['@drupaleasy_repositories.service', '@entity_type.manager', '@database']
+

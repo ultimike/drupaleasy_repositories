@@ -3,11 +3,12 @@
 namespace Drupal\drupaleasy_repositories;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 
 /**
  * Base class for drupaleasy_repositories plugins.
  */
-abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements DrupaleasyRepositoriesInterface {
+abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements DrupaleasyRepositoriesInterface, ContainerFactoryPluginInterface {
 
   /**
    * The repository client used to make API calls.
