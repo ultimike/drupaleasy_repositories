@@ -1,5 +1,7 @@
 <?php
 
+use Drupal\Core\Form\FormState;
+
 /**
  * @file
  * Primary module hooks for DrupalEasy Repositories module.
@@ -13,7 +15,7 @@ use Drupal\drupaleasy_repositories\Event\UserLoginEvent;
 function drupaleasy_repositories_user_login($account) {
   $event = new UserLoginEvent($account);
 
-  $event_dispatcher = \Drupal::service('event_dispatcher');
+  $event_dispatcher = Drupal::service('event_dispatcher');
   $event_dispatcher->dispatch(UserLoginEvent::EVENT_NAME, $event);
 }
 
@@ -26,15 +28,42 @@ function drupaleasy_repositories_cron() {
   // Gets the current UTC hour.
   $hour = time() / 3600 % 24;
   if ($hour == 1) {
-    $user_storage = \Drupal::service('entity_type.manager')->getStorage('user');
+    $user_storage = Drupal::service('entity_type.manager')->getStorage('user');
     $query = $user_storage->getQuery();
     $query->condition('status', '1');
     $users = $query->execute();
 
     // Create a Queue API item for each user.
     foreach ($users as $uid => $user) {
-      $queue = \Drupal::queue('drupaleasy_repositories_repository_node_updater');
+      $queue = Drupal::queue('drupaleasy_repositories_repository_node_updater');
       $queue->createItem(['uid' => $uid]);
     }
+  }
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ */
+function drupaleasy_repositories_form_user_form_alter(&$form, $form_state, $form_id) {
+  $form['#validate'][] = '_drupaleasy_repositories_user_form_validate';
+}
+
+/**
+ * Custom validation for user profile form.
+ *
+ * @param array $form
+ *   The form.
+ * @param Drupal\Core\Form\FormState $form_state
+ *   The form state.
+ */
+function _drupaleasy_repositories_user_form_validate(array $form, FormState &$form_state) {
+  $repository_service = Drupal::service('drupaleasy_repositories.service');
+  $error = $repository_service->validateRepositoryUrls($form_state->getValue('field_repository_url'));
+
+  if ($error) {
+    $form_state->setError(
+      $form['field_repository_url'],
+      $error,
+    );
   }
 }

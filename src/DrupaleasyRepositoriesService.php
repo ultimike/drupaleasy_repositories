@@ -8,6 +8,8 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\node\Entity\Node;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
+use function PHPUnit\Framework\isEmpty;
+
 /**
  * This is the main class that calls all the enabled plugins.
  */
@@ -196,6 +198,49 @@ class DrupaleasyRepositoriesService {
       }
     }
     return TRUE;
+  }
+
+  /**
+   * Validate repository URLs.
+   *
+   * @param array $urls
+   *   The urls to be validated.
+   *
+   * @return array
+   *   Errors reported by plugins.
+   */
+  public function validateRepositoryUrls(array $urls) {
+    $errors = [];
+
+    $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
+
+    foreach ($repository_location_ids as $repository_location_id) {
+      if (!empty($repository_location_id)) {
+        $repositories[] = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
+      }
+    }
+
+    foreach ($urls as $url) {
+      if ($uri = trim($url['uri'])) {
+        $validUrl = FALSE;
+        /** @var DrupaleasyRepositoriesInterface $repository */
+        foreach ($repositories as $repository) {
+          if ($repository->hasValidator()) {
+            if ($repository->validate($uri)) {
+              $validUrl = TRUE;
+            }
+          }
+        }
+        if (!$validUrl) {
+          $errors[] = $this->t('The url %uri is not a valid url.', ['%uri' => $uri]);
+        }
+      }
+    }
+
+    if ($errors) {
+      return implode(' ', $errors);
+    }
+    return NULL;
   }
 
 }

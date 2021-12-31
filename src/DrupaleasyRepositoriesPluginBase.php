@@ -42,4 +42,18 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
     return (string) $this->pluginDefinition['label'];
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function hasValidator() {
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate(string $uri) {
+    return FALSE;
+  }
+
 }

@@ -19,4 +19,3 @@ services:
   drupaleasy_repositories.batch:
     class: Drupal\drupaleasy_repositories\Batch
     arguments: ['@drupaleasy_repositories.service', '@entity_type.manager', '@database']
-

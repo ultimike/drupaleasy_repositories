@@ -18,6 +18,25 @@ interface DrupaleasyRepositoriesInterface {
   public function label();
 
   /**
+   * Returns TRUE if plugin has a field validator.
+   *
+   * @return bool
+   *   TRUE if validator exists.
+   */
+  public function hasValidator();
+
+  /**
+   * URL validator.
+   *
+   * @param string $uri
+   *   The URI to validate.
+   *
+   * @return bool
+   *   Returns TRUE if the validation passes.
+   */
+  public function validate(string $uri);
+
+  /**
    * Queries the site for the number of repositories belonging to the user.
    *
    * @param Drupal\user\UserInterface $user

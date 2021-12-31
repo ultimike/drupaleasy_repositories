@@ -125,4 +125,18 @@ class Github extends DrupaleasyRepositoriesPluginBase {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function hasValidator() {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate($uri) {
+    return FALSE;
+  }
+
 }
