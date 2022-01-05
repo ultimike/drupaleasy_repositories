@@ -8,8 +8,6 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\node\Entity\Node;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
-use function PHPUnit\Framework\isEmpty;
-
 /**
  * This is the main class that calls all the enabled plugins.
  */
@@ -69,7 +67,7 @@ class DrupaleasyRepositoriesService {
   /**
    * Update the repository nodes for a given account.
    *
-   * @param Drupal\user\UserInterface $account
+   * @param \Drupal\user\UserInterface $account
    *   The user account whose repositories to update.
    *
    * @return bool
@@ -80,26 +78,40 @@ class DrupaleasyRepositoriesService {
 
     foreach ($repository_location_ids as $repository_location_id) {
       if (!empty($repository_location_id)) {
-        /** @var DrupaleasyRepositoriesInterface $repository */
+        $repos_info = [];
+        /** @var DrupaleasyRepositoriesInterface $repository_location */
         $repository_location = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
         // @todo Do something (state variable) to limit checking to once/day?
-        \Drupal::messenger()->addMessage($this->t('Processing data from @repo.', ['@repo' => $repository_location->label()]));
+        if ($repository_location->hasValidator()) {
+          // Loop through repository URLs.
+          foreach ($account->field_repository_url as $url) {
+            // Check if URL validates for this repository.
+            if ($repository_location->validate($url->uri)) {
+              // Confirm repository exists.
+              if ($repo_info = $repository_location->getRepo($url->uri)) {
+                $repos_info += $repo_info;
+              }
+            }
+          }
+        }
+
+        //\Drupal::messenger()->addMessage($this->t('Processing data from @repo.', ['@repo' => $repository_location->label()]));
 
         // Check if repositories exist at this location for this user. If so,
         // return count.
-        if ($count = $repository_location->count($account)) {
-          \Drupal::messenger()->addMessage($this->t('UID @uid has @count repositories here.', [
-            '@uid' => $account->id(),
-            '@count' => $count,
-          ]));
-        }
-        else {
-          \Drupal::messenger()->addMessage($this->t('UID @uid has no repositories here.', ['@uid' => $account->id()]));
-          return FALSE;
-        }
+        // if ($count = $repository_location->count($account)) {
+        //   \Drupal::messenger()->addMessage($this->t('UID @uid has @count repositories here.', [
+        //     '@uid' => $account->id(),
+        //     '@count' => $count,
+        //   ]));
+        // }
+        // else {
+        //   \Drupal::messenger()->addMessage($this->t('UID @uid has no repositories here.', ['@uid' => $account->id()]));
+        //   return FALSE;
+        // }
 
         // Get name and description of each repository at this location.
-        $repos_info = $repository_location->getInfo($account);
+        //$repos_info = $repository_location->getInfo($account);
 
         $this->updateRepositoryNodes($repos_info, $account, $repository_location_id);
 
@@ -123,6 +135,9 @@ class DrupaleasyRepositoriesService {
    *   TRUE if successful.
    */
   protected function updateRepositoryNodes(array $repos_info, UserInterface $account, string $repository_location_id) {
+    if (!$repos_info) {
+      return TRUE;
+    }
     // Prepare the storage and query stuff.
     /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
     $node_storage = $this->entityManager->getStorage('node');
@@ -241,6 +256,37 @@ class DrupaleasyRepositoriesService {
       return implode(' ', $errors);
     }
     return NULL;
+  }
+
+  /**
+   * Get valid repository URL help text from each plugin.
+   *
+   * @return string
+   *   The help text.
+   */
+  public function getValidatorHelpText() {
+    $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
+
+    foreach ($repository_location_ids as $repository_location_id) {
+      if (!empty($repository_location_id)) {
+        $repositories[] = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
+      }
+    }
+
+    $help = [];
+
+    /** @var DrupaleasyRepositoriesInterface $repository */
+    foreach ($repositories as $repository) {
+      if ($repository->hasValidator()) {
+        $help[] = $repository->validateHelpText();
+      }
+    }
+
+    if (count($help)) {
+      return implode(' ', $help);
+    }
+
+    return '';
   }
 
 }

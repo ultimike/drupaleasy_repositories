@@ -34,7 +34,7 @@ class Github extends DrupaleasyRepositoriesPluginBase {
   /**
    * The Key repository service.
    *
-   * @var Drupal\Key\KeyRepositoryInterface
+   * @var \Drupal\Key\KeyRepositoryInterface
    */
   protected $keyRepository;
 
@@ -126,6 +126,51 @@ class Github extends DrupaleasyRepositoriesPluginBase {
   }
 
   /**
+   * Gets a single repository from Github.
+   *
+   * @param string $uri
+   *   The URI of the repository to get.
+   *
+   * @return array
+   *   The repositories.
+   */
+  public function getRepo(string $uri) {
+    // Parse the URI.
+    $all_parts = parse_url($uri);
+    $parts = explode('/', $all_parts['path']);
+    $this->authenticate();
+    try {
+      $repo = $this->client->api('repo')->show($parts[1], $parts[2]);
+    }
+    catch (RuntimeException $th) {
+      \Drupal::messenger()->addMessage($this->t('Github error: @error', [
+        '@error' => $th->getMessage(),
+      ]));
+      return NULL;
+    }
+    catch (\Throwable $th) {
+      return NULL;
+    }
+    return $this->mapToCommonFormat($repo);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  // Move this to the service and pass in data?
+  protected function mapToCommonFormat(array $repo_raw) {
+    $repo_info[$repo_raw['full_name']] = [
+      'label' => $repo_raw['name'],
+      'description' => $repo_raw['description'],
+      'num_open_issues' => $repo_raw['open_issues_count'],
+      // This needs to be the same as the plugin ID.
+      'source' => 'github',
+      'url' => $repo_raw['html_url'],
+    ];
+    return $repo_info;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function hasValidator() {
@@ -136,7 +181,19 @@ class Github extends DrupaleasyRepositoriesPluginBase {
    * {@inheritdoc}
    */
   public function validate($uri) {
+    $pattern = '/^(https:\/\/)github.com\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+/';
+
+    if (preg_match($pattern, $uri) == 1) {
+      return TRUE;
+    }
     return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateHelpText() {
+    return 'https://github.com/vendor/name';
   }
 
 }

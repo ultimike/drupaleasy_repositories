@@ -1,12 +1,13 @@
 <?php
 
-use Drupal\Core\Form\FormState;
-
 /**
  * @file
  * Primary module hooks for DrupalEasy Repositories module.
  */
 
+use Drupal\Core\Form\FormState;
+use Drupal\Core\Render\Element;
+use Drupal\user\Entity\User;
 use Drupal\drupaleasy_repositories\Event\UserLoginEvent;
 
 /**
@@ -28,6 +29,7 @@ function drupaleasy_repositories_cron() {
   // Gets the current UTC hour.
   $hour = time() / 3600 % 24;
   if ($hour == 1) {
+    /** @var \Drupal\Core\Entity\EntityStorageInterface $user_storage */
     $user_storage = Drupal::service('entity_type.manager')->getStorage('user');
     $query = $user_storage->getQuery();
     $query->condition('status', '1');
@@ -46,10 +48,30 @@ function drupaleasy_repositories_cron() {
  */
 function drupaleasy_repositories_form_user_form_alter(&$form, $form_state, $form_id) {
   $form['#validate'][] = '_drupaleasy_repositories_user_form_validate';
+  $form['actions']['submit']['#submit'][] = '_drupaleasy_repositories_user_form_submit';
+
+  if (!empty($form['field_repository_url']['widget'])) {
+    foreach (Element::children($form['field_repository_url']['widget']) as $el_index) {
+      $form['field_repository_url']['widget'][$el_index]['#process'][] = '_drupaleasy_repositories_url_help_text';
+    }
+  }
 }
 
 /**
- * Custom validation for user profile form.
+ * {@inheritdoc}
+ */
+function _drupaleasy_repositories_url_help_text(&$element, &$form_state, &$form) {
+  /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $repository_service */
+  $repository_service = Drupal::service('drupaleasy_repositories.service');
+  $help_text = $repository_service->getValidatorHelpText();
+
+  $element['uri']['#description'] = t('Valid URLs include: %help_text', ['%help_text' => $help_text]);
+  $element['uri']['#description_display'] = 'before';
+  return $element;
+};
+
+/**
+ * Custom validation handler for user profile form.
  *
  * @param array $form
  *   The form.
@@ -57,6 +79,7 @@ function drupaleasy_repositories_form_user_form_alter(&$form, $form_state, $form
  *   The form state.
  */
 function _drupaleasy_repositories_user_form_validate(array $form, FormState &$form_state) {
+  /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $repository_service */
   $repository_service = Drupal::service('drupaleasy_repositories.service');
   $error = $repository_service->validateRepositoryUrls($form_state->getValue('field_repository_url'));
 
@@ -66,4 +89,22 @@ function _drupaleasy_repositories_user_form_validate(array $form, FormState &$fo
       $error,
     );
   }
+}
+
+/**
+ * Custom submit handler for user profile form.
+ *
+ * @param array $form
+ *   The form.
+ * @param Drupal\Core\Form\FormState $form_state
+ *   The form state.
+ */
+function _drupaleasy_repositories_user_form_submit(array $form, FormState &$form_state) {
+  /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $repository_service */
+  $repository_service = Drupal::service('drupaleasy_repositories.service');
+
+  // Todo: Is this the best way to do this?
+  $account = User::load($form_state->getValue('uid'));
+  // Todo: What happens if it returns false? Error message?
+  $repository_service->updateRepositories($account);
 }

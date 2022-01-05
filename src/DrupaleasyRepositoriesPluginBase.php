@@ -56,4 +56,11 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
     return FALSE;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function validateHelpText() {
+    return '';
+  }
+
 }
