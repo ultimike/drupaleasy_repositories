@@ -2,8 +2,6 @@
 
 namespace Drupal\drupaleasy_repositories;
 
-use Drupal\user\UserInterface;
-
 /**
  * Interface for drupaleasy_repositories plugins.
  */
@@ -45,28 +43,6 @@ interface DrupaleasyRepositoriesInterface {
   public function validateHelpText();
 
   /**
-   * Queries the site for the number of repositories belonging to the user.
-   *
-   * @param \Drupal\user\UserInterface $user
-   *   The user.
-   *
-   * @return int
-   *   The number of repositories.
-   */
-  public function count(UserInterface $user);
-
-  /**
-   * Queries the repository source for info about each repository.
-   *
-   * @param \Drupal\user\UserInterface $user
-   *   The user.
-   *
-   * @return array
-   *   The name and description of each repository.
-   */
-  public function getInfo(UserInterface $user);
-
-  /**
    * Queries the repository source for info about a repository.
    *
    * @param string $uri
@@ -75,7 +51,6 @@ interface DrupaleasyRepositoriesInterface {
    * @return array
    *   The name and description of each repository.
    */
-  //public function getRepo(string $uri);
-  // Todo: Move this to another Interface that is only for remote repositories?
+  public function getRepo(string $uri);
 
 }

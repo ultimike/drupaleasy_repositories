@@ -74,11 +74,11 @@ class DrupaleasyRepositoriesService {
    *   TRUE if successful.
    */
   public function updateRepositories(UserInterface $account) {
+    $repos_info = [];
     $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
 
     foreach ($repository_location_ids as $repository_location_id) {
       if (!empty($repository_location_id)) {
-        $repos_info = [];
         /** @var DrupaleasyRepositoriesInterface $repository_location */
         $repository_location = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
         // @todo Do something (state variable) to limit checking to once/day?
@@ -94,29 +94,18 @@ class DrupaleasyRepositoriesService {
             }
           }
         }
-
-        //\Drupal::messenger()->addMessage($this->t('Processing data from @repo.', ['@repo' => $repository_location->label()]));
-
-        // Check if repositories exist at this location for this user. If so,
-        // return count.
-        // if ($count = $repository_location->count($account)) {
-        //   \Drupal::messenger()->addMessage($this->t('UID @uid has @count repositories here.', [
-        //     '@uid' => $account->id(),
-        //     '@count' => $count,
-        //   ]));
-        // }
-        // else {
-        //   \Drupal::messenger()->addMessage($this->t('UID @uid has no repositories here.', ['@uid' => $account->id()]));
-        //   return FALSE;
-        // }
-
-        // Get name and description of each repository at this location.
-        //$repos_info = $repository_location->getInfo($account);
-
-        $this->updateRepositoryNodes($repos_info, $account, $repository_location_id);
-
+        else {
+          // Repositories that do not have validators are from .yml files.
+          // Loop through custom repository .yml files.
+          foreach ($account->field_custom_repository_yml as $file) {
+            if ($repo_info = $repository_location->getRepo($file->entity->uri[0]->value)) {
+              $repos_info += $repo_info;
+            }
+          }
+        }
       }
     }
+    $this->updateRepositoryNodes($repos_info, $account);
     // @todo Do something better with this.
     return TRUE;
   }
@@ -128,13 +117,11 @@ class DrupaleasyRepositoriesService {
    *   Repository info from API call.
    * @param Drupal\user\UserInterface $account
    *   The user account whose repositories to update.
-   * @param string $repository_location_id
-   *   The repository location ID.
    *
    * @return bool
    *   TRUE if successful.
    */
-  protected function updateRepositoryNodes(array $repos_info, UserInterface $account, string $repository_location_id) {
+  protected function updateRepositoryNodes(array $repos_info, UserInterface $account) {
     if (!$repos_info) {
       return TRUE;
     }
@@ -158,7 +145,7 @@ class DrupaleasyRepositoriesService {
       $query->condition('type', 'repository')
         ->condition('uid', $account->id())
         ->condition('field_machine_name', $key)
-        ->condition('field_source', $repository_location_id);
+        ->condition('field_source', $info['source']);
       $results = $query->execute();
 
       if ($results) {
@@ -201,8 +188,7 @@ class DrupaleasyRepositoriesService {
     $query = $node_storage->getQuery();
     $query->condition('type', 'repository')
       ->condition('uid', $account->id())
-      ->condition('field_machine_name', array_keys($repos_info), 'NOT IN')
-      ->condition('field_source', $repository_location_id);
+      ->condition('field_machine_name', array_keys($repos_info), 'NOT IN');
     $results = $query->execute();
     if ($results) {
       $nodes = Node::loadMultiple($results);

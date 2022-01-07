@@ -5,6 +5,7 @@ namespace Drupal\drupaleasy_repositories\Plugin\DrupaleasyRepositories;
 use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginBase;
 use Drupal\user\UserInterface;
 use Github\Client;
+use Github\AuthMethod;
 use Github\Exception\RuntimeException;
 use Symfony\Component\HttpClient\HttplugClient;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -59,45 +60,12 @@ class Github extends DrupaleasyRepositoriesPluginBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Authenticate with Github.
    */
   protected function authenticate() {
     $this->client = Client::createWithHttpClient(new HttplugClient());
     $github_key = $this->keyRepository->getKey('github')->getKeyValues();
-    $this->client->authenticate($github_key['username'], $github_key['personal_access_token'], CLIENT::AUTH_CLIENT_ID);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function count(UserInterface $user) {
-    $repos = $this->getRepos($user);
-    if ($repos) {
-      return count($repos);
-    }
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getInfo(UserInterface $user) {
-    $repos = $this->getRepos($user);
-
-    if (count($repos)) {
-      foreach ($repos as $remote_repo) {
-        $repositories[$remote_repo['full_name']] = [
-          'label' => $remote_repo['name'],
-          'description' => $remote_repo['description'],
-          'num_open_issues' => $remote_repo['open_issues_count'],
-          // This needs to be the same as the plugin ID.
-          'source' => 'github',
-          'url' => $remote_repo['html_url'],
-        ];
-      }
-      return $repositories;
-    }
-    return NULL;
+    $this->client->authenticate($github_key['username'], $github_key['personal_access_token'], AuthMethod::CLIENT_ID);
   }
 
   /**
@@ -151,23 +119,7 @@ class Github extends DrupaleasyRepositoriesPluginBase {
     catch (\Throwable $th) {
       return NULL;
     }
-    return $this->mapToCommonFormat($repo);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  // Move this to the service and pass in data?
-  protected function mapToCommonFormat(array $repo_raw) {
-    $repo_info[$repo_raw['full_name']] = [
-      'label' => $repo_raw['name'],
-      'description' => $repo_raw['description'],
-      'num_open_issues' => $repo_raw['open_issues_count'],
-      // This needs to be the same as the plugin ID.
-      'source' => 'github',
-      'url' => $repo_raw['html_url'],
-    ];
-    return $repo_info;
+    return $this->mapToCommonFormat($repo['full_name'], $repo['name'], $repo['description'], $repo['open_issues_count'], 'github', $repo['html_url']);
   }
 
   /**

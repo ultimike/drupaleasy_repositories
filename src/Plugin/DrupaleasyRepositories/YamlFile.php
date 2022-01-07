@@ -3,10 +3,10 @@
 namespace Drupal\drupaleasy_repositories\Plugin\DrupaleasyRepositories;
 
 use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginBase;
-use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\File\FileUrlGeneratorInterface;
 
 /**
  * Plugin implementation of the drupaleasy_repositories.
@@ -27,6 +27,13 @@ class YamlFile extends DrupaleasyRepositoriesPluginBase {
   protected $fileSystem;
 
   /**
+   * The file_url_generator service.
+   *
+   * @var Drupal\Core\File\FileUrlGeneratorInterface
+   */
+  protected $fileUrlGenerator;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -34,51 +41,18 @@ class YamlFile extends DrupaleasyRepositoriesPluginBase {
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('file_system')
+      $container->get('file_system'),
+      $container->get('file_url_generator')
     );
   }
 
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, FileSystemInterface $file_system) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, FileSystemInterface $file_system, FileUrlGeneratorInterface $file_url_generator) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->fileSystem = $file_system;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function authenticate(UserInterface $user) {
-    // @todo get filename from user account field?
-    $filename = $this->fileSystem->realpath('public://user/' . $user->id() . '/repo.yml');
-    if (file_exists($filename) && is_readable(($filename))) {
-      return $filename;
-    }
-    return FALSE;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function count(UserInterface $user) {
-    if ($filename = $this->authenticate($user)) {
-      $repos = Yaml::decode(file_get_contents($filename));
-      return count($repos);
-    }
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getInfo(UserInterface $user) {
-    if ($filename = $this->authenticate($user)) {
-      $repos = Yaml::decode(file_get_contents($filename));
-      array_walk($repos, ['self', 'addSource']);
-      return $repos;
-    }
-    return NULL;
+    $this->fileUrlGenerator = $file_url_generator;
   }
 
   /**
@@ -88,10 +62,31 @@ class YamlFile extends DrupaleasyRepositoriesPluginBase {
    *   The array item.
    * @param string $key
    *   The array key.
+   * @param string $uri
+   *   The uri of the repository.
    */
-  protected function addSource(array &$item, string $key) {
+  protected function addSourceAndUri(array &$item, string $key, string $uri) {
     // This needs to be the same as the plugin ID.
     $item['source'] = 'yaml';
+    $item['url'] = $this->fileUrlGenerator->generateAbsoluteString($uri);
+  }
+
+  /**
+   * Gets a single repository from the .yml file.
+   *
+   * @param string $uri
+   *   The URI of the repository to get.
+   *
+   * @return array
+   *   The repositories.
+   */
+  public function getRepo(string $uri) {
+    if (file_exists($uri)) {
+      $repo_info = Yaml::decode(file_get_contents($uri));
+      array_walk($repo_info, ['self', 'addSourceAndUri'], $uri);
+      return $repo_info;
+    }
+    return NULL;
   }
 
 }
