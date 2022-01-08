@@ -204,36 +204,52 @@ class DrupaleasyRepositoriesService {
   /**
    * Validate repository URLs.
    *
+   * Validate the URLs are valid based on the enabled plugins and ensure they
+   * haven't been added by another user. This only validates non-yaml
+   * repository URLs.
+   *
    * @param array $urls
    *   The urls to be validated.
+   * @param int $uid
+   *   The user id of the user submitting the URLs.
    *
    * @return array
    *   Errors reported by plugins.
    */
-  public function validateRepositoryUrls(array $urls) {
+  public function validateRepositoryUrls(array $urls, int $uid) {
     $errors = [];
 
     $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
 
     foreach ($repository_location_ids as $repository_location_id) {
       if (!empty($repository_location_id)) {
-        $repositories[] = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
+        $repository_services[] = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
       }
     }
 
     foreach ($urls as $url) {
       if ($uri = trim($url['uri'])) {
-        $validUrl = FALSE;
+        // Check to see if the URI if valid for any enabled plugins.
         /** @var DrupaleasyRepositoriesInterface $repository */
-        foreach ($repositories as $repository) {
-          if ($repository->hasValidator()) {
-            if ($repository->validate($uri)) {
-              $validUrl = TRUE;
+        foreach ($repository_services as $repository_service) {
+          if ($repository_service->hasValidator()) {
+            if ($repository_service->validate($uri)) {
+              // Check to see if the repository was previously added by another
+              // user.
+              $repo_info = $repository_service->getRepo($uri);
+              if ($repo_info) {
+                if (!$this->isUnique($repo_info, $uid)) {
+                  $errors[] = $this->t('The repository at %uri has been added by another user.', ['%uri' => $uri]);
+                }
+              }
+              else {
+                $errors[] = $this->t('The url %uri is not a valid repository.', ['%uri' => $uri]);
+              }
+            }
+            else {
+              $errors[] = $this->t('The url %uri is not a valid url.', ['%uri' => $uri]);
             }
           }
-        }
-        if (!$validUrl) {
-          $errors[] = $this->t('The url %uri is not a valid url.', ['%uri' => $uri]);
         }
       }
     }
@@ -273,6 +289,38 @@ class DrupaleasyRepositoriesService {
     }
 
     return '';
+  }
+
+  /**
+   * Check to see if the repository is unique.
+   *
+   * @param array $repo_info
+   *   The repository info.
+   * @param int $uid
+   *   The user ID of the submitter.
+   *
+   * @return bool
+   *   Return true if the repository is unique.
+   */
+  protected function isUnique(array $repo_info, int $uid) {
+    /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
+    $node_storage = $this->entityManager->getStorage('node');
+
+    // Calculate hash value.
+    $hash = md5(serialize(array_pop($repo_info)));
+
+    // Look for repository nodes with a matching hash.
+    /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
+    $query = $node_storage->getQuery();
+    $query->condition('type', 'repository')
+      ->condition('uid', $uid, '<>')
+      ->condition('field_hash', $hash);
+    $results = $query->execute();
+
+    if (count($results)) {
+      return FALSE;
+    };
+    return TRUE;
   }
 
 }
