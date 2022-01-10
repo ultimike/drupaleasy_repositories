@@ -3,6 +3,7 @@
 namespace Drupal\drupaleasy_repositories;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ExtensionList;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
@@ -20,11 +21,11 @@ class Batch {
   protected $repositoriesService;
 
   /**
-   * The entity type manager service.
+   * The extension list  module service.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var \Drupal\Core\Extension\ExtensionList
    */
-  protected $entityTypeManager;
+  protected $extensionListModule;
 
   /**
    * Constructor.
@@ -33,10 +34,13 @@ class Batch {
    *   The DrupalEasy repositories service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager service.
+   * @param \Drupal\Core\Extension\ExtensionList $extension_list_module
+   *   The extension list module service.
    */
-  public function __construct(DrupaleasyRepositoriesService $drupaleasy_repositories_service, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(DrupaleasyRepositoriesService $drupaleasy_repositories_service, EntityTypeManagerInterface $entity_type_manager, ExtensionList $extension_list_module) {
     $this->repositoriesService = $drupaleasy_repositories_service;
     $this->entityTypeManager = $entity_type_manager;
+    $this->extensionListModule = $extension_list_module;
   }
 
   /**
@@ -56,7 +60,7 @@ class Batch {
     $batch = [
       'operations' => $operations,
       'finished' => 'drupaleasy_update_all_repositories_finished',
-      'file' => drupal_get_path('module', 'drupaleasy_repositories') . '/drupaleasy_repositories.batch.inc',
+      'file' => $this->extensionListModule->getPath('drupaleasy_repositories') . '/drupaleasy_repositories.batch.inc',
     ];
     batch_set($batch);
     if ($drush) {
