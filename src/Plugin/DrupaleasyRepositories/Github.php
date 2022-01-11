@@ -77,21 +77,21 @@ class Github extends DrupaleasyRepositoriesPluginBase {
    * @return array
    *   The repositories.
    */
-  protected function getRepos(UserInterface $user) {
-    $this->authenticate();
-    try {
-      return $this->client->api('user')->repositories($user->label());
-    }
-    catch (RuntimeException $th) {
-      \Drupal::messenger()->addMessage($this->t('Github error: @error', [
-        '@error' => $th->getMessage(),
-      ]));
-      return NULL;
-    }
-    catch (\Throwable $th) {
-      return NULL;
-    }
-  }
+  // protected function getRepos(UserInterface $user) {
+  //   $this->authenticate();
+  //   try {
+  //     return $this->client->api('user')->repositories($user->label());
+  //   }
+  //   catch (RuntimeException $th) {
+  //     \Drupal::messenger()->addMessage($this->t('Github error: @error', [
+  //       '@error' => $th->getMessage(),
+  //     ]));
+  //     return NULL;
+  //   }
+  //   catch (\Throwable $th) {
+  //     return NULL;
+  //   }
+  // }
 
   /**
    * Gets a single repository from Github.

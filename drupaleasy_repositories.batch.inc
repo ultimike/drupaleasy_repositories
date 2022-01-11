@@ -14,6 +14,10 @@
  *   Batch API context.
  */
 function drupaleasy_update_repositories_batch_operation($uid, &$context) {
+  if (empty($context['results'])) {
+    $context['results'] = [];
+    $context['results']['num'] = 0;
+  }
   $drupaleasy_repositories_batch = \Drupal::service('drupaleasy_repositories.batch');
   return $drupaleasy_repositories_batch->updateRepositoriesBatch($uid, $context);
 }

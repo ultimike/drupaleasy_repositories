@@ -229,26 +229,32 @@ class DrupaleasyRepositoriesService {
 
     foreach ($urls as $url) {
       if ($uri = trim($url['uri'])) {
+        $validUrl = FALSE;
+        $repo_info = [];
         // Check to see if the URI if valid for any enabled plugins.
         /** @var DrupaleasyRepositoriesInterface $repository */
         foreach ($repository_services as $repository_service) {
           if ($repository_service->hasValidator()) {
             if ($repository_service->validate($uri)) {
-              // Check to see if the repository was previously added by another
-              // user.
               $repo_info = $repository_service->getRepo($uri);
               if ($repo_info) {
-                if (!$this->isUnique($repo_info, $uid)) {
-                  $errors[] = $this->t('The repository at %uri has been added by another user.', ['%uri' => $uri]);
-                }
+                $validUrl = TRUE;
+                break;
               }
               else {
-                $errors[] = $this->t('The url %uri is not a valid repository.', ['%uri' => $uri]);
+                $errors[] = $this->t('A repository does not exist at %uri.', ['%uri' => $uri]);
               }
             }
-            else {
-              $errors[] = $this->t('The url %uri is not a valid url.', ['%uri' => $uri]);
-            }
+          }
+        }
+        if (!$validUrl) {
+          $errors[] = $this->t('The url %uri is not a valid url.', ['%uri' => $uri]);
+        }
+
+        // Check to see if the repository was previously added by another user.
+        if ($repo_info) {
+          if (!$this->isUnique($repo_info, $uid)) {
+            $errors[] = $this->t('The repository at %uri has been added by another user.', ['%uri' => $uri]);
           }
         }
       }

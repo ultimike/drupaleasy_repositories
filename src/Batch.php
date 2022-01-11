@@ -64,6 +64,9 @@ class Batch {
     ];
     batch_set($batch);
     if ($drush) {
+      // For some reason, running via drush leaves the $results array in
+      // drupaleasy_update_all_repositories_finished() empty. See
+      // https://github.com/drush-ops/drush/issues/5009
       drush_backend_batch_process();
     }
   }
@@ -74,7 +77,7 @@ class Batch {
    * @param int $uid
    *   User ID to update.
    * @param array|\ArrayAccess $context
-   *   Context for operations. We do not want to typehit this as an array or
+   *   Context for operations. We do not want to typehint this as an array or
    *   an object as sometimes it is an array (when calling from a form) and
    *   sometimes it is an object (when calling from Drush).
    */
