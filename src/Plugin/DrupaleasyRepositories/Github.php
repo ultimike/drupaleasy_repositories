@@ -3,7 +3,6 @@
 namespace Drupal\drupaleasy_repositories\Plugin\DrupaleasyRepositories;
 
 use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginBase;
-use Drupal\user\UserInterface;
 use Github\Client;
 use Github\AuthMethod;
 use Github\Exception\RuntimeException;
@@ -65,33 +64,17 @@ class Github extends DrupaleasyRepositoriesPluginBase {
   protected function authenticate() {
     $this->client = Client::createWithHttpClient(new HttplugClient());
     $github_key = $this->keyRepository->getKey('github')->getKeyValues();
-    $this->client->authenticate($github_key['username'], $github_key['personal_access_token'], AuthMethod::CLIENT_ID);
+    try {
+      $this->client->authenticate($github_key['username'], $github_key['personal_access_token'], AuthMethod::CLIENT_ID);
+      return TRUE;
+    }
+    catch (RuntimeException $th) {
+      \Drupal::messenger()->addMessage($this->t('Github error: @error', [
+        '@error' => $th->getMessage(),
+      ]));
+      return FALSE;
+    }
   }
-
-  /**
-   * Gets repositories from Github.
-   *
-   * @param Drupal\user\UserInterface $user
-   *   The user whose repositories to get.
-   *
-   * @return array
-   *   The repositories.
-   */
-  // protected function getRepos(UserInterface $user) {
-  //   $this->authenticate();
-  //   try {
-  //     return $this->client->api('user')->repositories($user->label());
-  //   }
-  //   catch (RuntimeException $th) {
-  //     \Drupal::messenger()->addMessage($this->t('Github error: @error', [
-  //       '@error' => $th->getMessage(),
-  //     ]));
-  //     return NULL;
-  //   }
-  //   catch (\Throwable $th) {
-  //     return NULL;
-  //   }
-  // }
 
   /**
    * Gets a single repository from Github.
@@ -106,20 +89,25 @@ class Github extends DrupaleasyRepositoriesPluginBase {
     // Parse the URI.
     $all_parts = parse_url($uri);
     $parts = explode('/', $all_parts['path']);
-    $this->authenticate();
-    try {
-      $repo = $this->client->api('repo')->show($parts[1], $parts[2]);
+    if ($this->authenticate()) {
+      try {
+        $repo = $this->client->api('repo')->show($parts[1], $parts[2]);
+      }
+      catch (RuntimeException $th) {
+        \Drupal::messenger()->addMessage($this->t('Github error: @error', [
+          '@error' => $th->getMessage(),
+        ]));
+        return NULL;
+      }
+      catch (\Throwable $th) {
+        return NULL;
+      }
+      return $this->mapToCommonFormat($repo['full_name'], $repo['name'], $repo['description'], $repo['open_issues_count'], 'github', $repo['html_url']);
     }
-    catch (RuntimeException $th) {
-      \Drupal::messenger()->addMessage($this->t('Github error: @error', [
-        '@error' => $th->getMessage(),
-      ]));
+    else {
       return NULL;
     }
-    catch (\Throwable $th) {
-      return NULL;
-    }
-    return $this->mapToCommonFormat($repo['full_name'], $repo['name'], $repo['description'], $repo['open_issues_count'], 'github', $repo['html_url']);
+
   }
 
   /**
