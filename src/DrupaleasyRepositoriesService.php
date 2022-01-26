@@ -82,23 +82,12 @@ class DrupaleasyRepositoriesService {
         /** @var DrupaleasyRepositoriesInterface $repository_location */
         $repository_location = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
         // @todo Do something (state variable) to limit checking to once/day?
-        if ($repository_location->hasValidator()) {
-          // Loop through repository URLs.
-          foreach ($account->field_repository_url as $url) {
-            // Check if URL validates for this repository.
-            if ($repository_location->validate($url->uri)) {
-              // Confirm repository exists.
-              if ($repo_info = $repository_location->getRepo($url->uri)) {
-                $repos_info += $repo_info;
-              }
-            }
-          }
-        }
-        else {
-          // Repositories that do not have validators are from .yml files.
-          // Loop through custom repository .yml files.
-          foreach ($account->field_custom_repository_yml as $file) {
-            if ($repo_info = $repository_location->getRepo($file->entity->uri[0]->value)) {
+        // Loop through repository URLs.
+        foreach ($account->field_repository_url as $url) {
+          // Check if URL validates for this repository.
+          if ($repository_location->validate($url->uri)) {
+            // Confirm repository exists.
+            if ($repo_info = $repository_location->getRepo($url->uri)) {
               $repos_info += $repo_info;
             }
           }
@@ -228,33 +217,25 @@ class DrupaleasyRepositoriesService {
     }
 
     foreach ($urls as $url) {
-      if ($uri = trim($url['uri'])) {
-        $validUrl = FALSE;
-        $repo_info = [];
-        // Check to see if the URI if valid for any enabled plugins.
-        /** @var DrupaleasyRepositoriesInterface $repository */
-        foreach ($repository_services as $repository_service) {
-          if ($repository_service->hasValidator()) {
+      if (is_array($url)) {
+        if ($uri = trim($url['uri'])) {
+          $repo_info = [];
+          // Check to see if the URI if valid for any enabled plugins.
+          /** @var DrupaleasyRepositoriesInterface $repository */
+          foreach ($repository_services as $repository_service) {
             if ($repository_service->validate($uri)) {
               $repo_info = $repository_service->getRepo($uri);
-              if ($repo_info) {
-                $validUrl = TRUE;
-                break;
-              }
-              else {
-                $errors[] = $this->t('A repository does not exist at %uri.', ['%uri' => $uri]);
+              if (!$repo_info) {
+                $errors[] = $this->t('The url %uri is not a valid url.', ['%uri' => $uri]);
               }
             }
           }
-        }
-        if (!$validUrl) {
-          $errors[] = $this->t('The url %uri is not a valid url.', ['%uri' => $uri]);
-        }
 
-        // Check to see if the repository was previously added by another user.
-        if ($repo_info) {
-          if (!$this->isUnique($repo_info, $uid)) {
-            $errors[] = $this->t('The repository at %uri has been added by another user.', ['%uri' => $uri]);
+          // Check to see if the repository was previously added by another user.
+          if ($repo_info) {
+            if (!$this->isUnique($repo_info, $uid)) {
+              $errors[] = $this->t('The repository at %uri has been added by another user.', ['%uri' => $uri]);
+            }
           }
         }
       }
@@ -285,9 +266,7 @@ class DrupaleasyRepositoriesService {
 
     /** @var DrupaleasyRepositoriesInterface $repository */
     foreach ($repositories as $repository) {
-      if ($repository->hasValidator()) {
-        $help[] = $repository->validateHelpText();
-      }
+      $help[] = $repository->validateHelpText();
     }
 
     if (count($help)) {

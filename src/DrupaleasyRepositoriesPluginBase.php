@@ -4,11 +4,17 @@ namespace Drupal\drupaleasy_repositories;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Key\KeyRepositoryInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Base class for drupaleasy_repositories plugins.
  */
 abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements DrupaleasyRepositoriesInterface, ContainerFactoryPluginInterface {
+
+  use StringTranslationTrait;
 
   /**
    * The repository client used to make API calls.
@@ -16,6 +22,42 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
    * @var object
    */
   private $client;
+
+  /**
+   * Drupal's messenger service.
+   *
+   * @var Drupal\Core\Messenger\MessengerInterface
+   */
+  private $messenger;
+
+  /**
+   * The Key repository service.
+   *
+   * @var \Drupal\Key\KeyRepositoryInterface
+   */
+  protected $keyRepository;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('messenger'),
+      $container->get('key.repository')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, MessengerInterface $messenger, KeyRepositoryInterface $key_repository) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->messenger = $messenger;
+    $this->keyRepository = $key_repository;
+  }
 
   /**
    * Sets the $client.
@@ -40,13 +82,6 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
   public function label() {
     // Cast the label to a string since it is a TranslatableMarkup object.
     return (string) $this->pluginDefinition['label'];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function hasValidator() {
-    return FALSE;
   }
 
   /**

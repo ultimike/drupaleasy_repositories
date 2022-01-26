@@ -7,9 +7,6 @@ use Github\Client;
 use Github\AuthMethod;
 use Github\Exception\RuntimeException;
 use Symfony\Component\HttpClient\HttplugClient;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Key\KeyRepositoryInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Plugin implementation of the drupaleasy_repositories.
@@ -22,42 +19,6 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
  */
 class Github extends DrupaleasyRepositoriesPluginBase {
 
-  use StringTranslationTrait;
-
-  /**
-   * The Github client.
-   *
-   * @var Github\Client
-   */
-  protected $client;
-
-  /**
-   * The Key repository service.
-   *
-   * @var \Drupal\Key\KeyRepositoryInterface
-   */
-  protected $keyRepository;
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('key.repository')
-    );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, KeyRepositoryInterface $key_repository) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->keyRepository = $key_repository;
-  }
-
   /**
    * Authenticate with Github.
    */
@@ -69,7 +30,7 @@ class Github extends DrupaleasyRepositoriesPluginBase {
       return TRUE;
     }
     catch (RuntimeException $th) {
-      \Drupal::messenger()->addMessage($this->t('Github error: @error', [
+      $this->messenger->addMessage($this->t('Github error: @error', [
         '@error' => $th->getMessage(),
       ]));
       return FALSE;
@@ -108,13 +69,6 @@ class Github extends DrupaleasyRepositoriesPluginBase {
       return NULL;
     }
 
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function hasValidator() {
-    return TRUE;
   }
 
   /**
