@@ -81,7 +81,6 @@ class DrupaleasyRepositoriesService {
       if (!empty($repository_location_id)) {
         /** @var DrupaleasyRepositoriesInterface $repository_location */
         $repository_location = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
-        // @todo Do something (state variable) to limit checking to once/day?
         // Loop through repository URLs.
         foreach ($account->field_repository_url as $url) {
           // Check if URL validates for this repository.
@@ -94,9 +93,7 @@ class DrupaleasyRepositoriesService {
         }
       }
     }
-    $this->updateRepositoryNodes($repos_info, $account);
-    // @todo Do something better with this.
-    return TRUE;
+    return $this->updateRepositoryNodes($repos_info, $account);
   }
 
   /**
@@ -231,7 +228,7 @@ class DrupaleasyRepositoriesService {
             }
           }
 
-          // Check to see if the repository was previously added by another user.
+          // Check to see if repository was previously added by another user.
           if ($repo_info) {
             if (!$this->isUnique($repo_info, $uid)) {
               $errors[] = $this->t('The repository at %uri has been added by another user.', ['%uri' => $uri]);

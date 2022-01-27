@@ -34,7 +34,12 @@ function drupaleasy_update_repositories_batch_operation($uid, &$context) {
  */
 function drupaleasy_update_all_repositories_finished(bool $success, array $results, array $operations) {
   if ($success) {
-    $message = t('Updated repository nodes for @num users.', ['@num' => $results['num']]);
+    if (isset($results['num'])) {
+      $message = t('Updated repository nodes for @num users.', ['@num' => $results['num']]);
+    }
+    else {
+      $message = t('Zero repositories updated.');
+    }
   }
   else {
     $message = t('Finished with an error.');

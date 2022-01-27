@@ -46,7 +46,6 @@ class DrupaleasyRepositoriesSubscriber implements EventSubscriberInterface {
    *   User login event.
    */
   public function onUserLogin(UserLoginEvent $event) {
-    // @todo only check for repositories for certain roles/permissions.
     if ($this->repositoriesService->updateRepositories($event->account)) {
       $this->messenger->addStatus('Repository nodes updated.');
     }
