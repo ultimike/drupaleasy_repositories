@@ -251,6 +251,7 @@ class DrupaleasyRepositoriesService {
    *   The help text.
    */
   public function getValidatorHelpText() {
+    $repositories = [];
     $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
 
     foreach ($repository_location_ids as $repository_location_id) {

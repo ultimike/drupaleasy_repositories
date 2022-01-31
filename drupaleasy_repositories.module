@@ -64,8 +64,12 @@ function _drupaleasy_repositories_url_help_text(&$element, &$form_state, &$form)
   /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $repository_service */
   $repository_service = Drupal::service('drupaleasy_repositories.service');
   $help_text = $repository_service->getValidatorHelpText();
-
-  $element['uri']['#description'] = t('Valid URLs include: %help_text', ['%help_text' => $help_text]);
+  if ($help_text) {
+    $element['uri']['#description'] = t('Valid URLs include: %help_text', ['%help_text' => $help_text]);
+  }
+  else {
+    $element['uri']['#description'] = t('No repositories are enabled. Contact site administrtor.');
+  }
   $element['uri']['#description_display'] = 'before';
   return $element;
 };
