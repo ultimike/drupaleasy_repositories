@@ -21,6 +21,13 @@ class Batch {
   protected $repositoriesService;
 
   /**
+   * The Entity type manager service.
+   *
+   * @var Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * The extension list  module service.
    *
    * @var \Drupal\Core\Extension\ExtensionList
@@ -47,6 +54,7 @@ class Batch {
    * Updates all user repositories using the Batch API.
    */
   public function updateAllUserRepositories(bool $drush = FALSE) {
+    $operations = [];
     /** @var \Drupal\Core\Entity\EntityStorageInterface $user_storage */
     $user_storage = $this->entityTypeManager->getStorage('user');
     $query = $user_storage->getQuery();

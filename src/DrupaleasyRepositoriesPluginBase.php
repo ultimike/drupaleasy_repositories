@@ -6,7 +6,7 @@ use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Messenger\MessengerInterface;
-use Drupal\Key\KeyRepositoryInterface;
+use Drupal\key\KeyRepositoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
@@ -21,14 +21,14 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
    *
    * @var object
    */
-  private $client;
+  protected $client;
 
   /**
    * Drupal's messenger service.
    *
    * @var Drupal\Core\Messenger\MessengerInterface
    */
-  private $messenger;
+  protected $messenger;
 
   /**
    * The Key repository service.
@@ -77,7 +77,10 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
   }
 
   /**
-   * {@inheritdoc}
+   * Plugin label getter.
+   *
+   * @return string
+   *   The plugin label.
    */
   public function label() {
     // Cast the label to a string since it is a TranslatableMarkup object.
@@ -85,14 +88,23 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
   }
 
   /**
-   * {@inheritdoc}
+   * Validate a repository URI.
+   *
+   * @param string $uri
+   *   The URI to validate.
+   *
+   * @return bool
+   *   True if validates.
    */
   public function validate(string $uri) {
     return FALSE;
   }
 
   /**
-   * {@inheritdoc}
+   * Help text to display for URI.
+   *
+   * @return string
+   *   The help text to display.
    */
   public function validateHelpText() {
     return '';

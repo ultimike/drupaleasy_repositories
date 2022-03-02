@@ -55,7 +55,7 @@ class Github extends DrupaleasyRepositoriesPluginBase {
         $repo = $this->client->api('repo')->show($parts[1], $parts[2]);
       }
       catch (RuntimeException $th) {
-        \Drupal::messenger()->addMessage($this->t('Github error: @error', [
+        $this->messenger->addMessage($this->t('Github error: @error', [
           '@error' => $th->getMessage(),
         ]));
         return NULL;

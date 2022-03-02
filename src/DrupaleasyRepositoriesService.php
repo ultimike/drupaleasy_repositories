@@ -7,6 +7,7 @@ use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\node\Entity\Node;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Messenger\MessengerInterface;
 
 /**
  * This is the main class that calls all the enabled plugins.
@@ -39,11 +40,18 @@ class DrupaleasyRepositoriesService {
   /**
    * The dry-run parameter.
    *
-   * When set to "true", no nodes are creaated, updated, or deleted.
+   * When set to "true", no nodes are created, updated, or deleted.
    *
    * @var bool
    */
   protected $dryRun;
+
+  /**
+   * Drupal's messenger service.
+   *
+   * @var Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
 
   /**
    * Constructs a DrupaleasyRepositories object.
@@ -56,12 +64,15 @@ class DrupaleasyRepositoriesService {
    *   The entity_type.manager service.
    * @param bool $dry_run
    *   The dry_run parameter.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   Drupal's messenger service.
    */
-  public function __construct(DrupaleasyRepositoriesPluginManager $plugin_manager_drupaleasy_repositories, ConfigFactory $config_factory, EntityTypeManagerInterface $entity_type_manager, bool $dry_run) {
+  public function __construct(DrupaleasyRepositoriesPluginManager $plugin_manager_drupaleasy_repositories, ConfigFactory $config_factory, EntityTypeManagerInterface $entity_type_manager, bool $dry_run, MessengerInterface $messenger) {
     $this->pluginManagerDrupaleasyRepositories = $plugin_manager_drupaleasy_repositories;
     $this->configFactory = $config_factory;
     $this->entityManager = $entity_type_manager;
     $this->dryRun = $dry_run;
+    $this->messenger = $messenger;
   }
 
   /**
@@ -116,7 +127,7 @@ class DrupaleasyRepositoriesService {
     $node_storage = $this->entityManager->getStorage('node');
 
     foreach ($repos_info as $key => $info) {
-      \Drupal::messenger()->addMessage($this->t('Found repo @name (@desc)', [
+      $this->messenger->addMessage($this->t('Found repo @name (@desc)', [
         '@name' => $info['label'],
         '@desc' => $info['description'],
       ]));
@@ -204,6 +215,7 @@ class DrupaleasyRepositoriesService {
    */
   public function validateRepositoryUrls(array $urls, int $uid) {
     $errors = [];
+    $repository_services = [];
 
     $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
 

@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Form with examples on how to use cache.
  */
-class UpdateRepositoriesForm extends FormBase {
+final class UpdateRepositoriesForm extends FormBase {
 
 
   /**
@@ -49,7 +49,7 @@ class UpdateRepositoriesForm extends FormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static(
+    return new self(
       $container->get('drupaleasy_repositories.service'),
       $container->get('drupaleasy_repositories.batch'),
       $container->get('entity_type.manager'),

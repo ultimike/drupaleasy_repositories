@@ -12,7 +12,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 /**
  * Configure DrupalEasy Repositories settings for this site.
  */
-class SettingsForm extends ConfigFormBase {
+final class SettingsForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
@@ -52,7 +52,7 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static(
+    return new self(
       $container->get('config.factory'),
       $container->get('plugin.manager.drupaleasy_repositories')
     );
@@ -68,6 +68,7 @@ class SettingsForm extends ConfigFormBase {
     uasort($repositories, function ($a, $b) {
       return Unicode::strcasecmp($a['label'], $b['label']);
     });
+    $repository_options = [];
     foreach ($repositories as $repository => $definition) {
       $repository_options[$repository] = $definition['label'];
     }
