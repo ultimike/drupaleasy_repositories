@@ -27,7 +27,6 @@ class Github extends DrupaleasyRepositoriesPluginBase {
     $github_key = $this->keyRepository->getKey('github')->getKeyValues();
     try {
       $this->client->authenticate($github_key['username'], $github_key['personal_access_token'], AuthMethod::CLIENT_ID);
-      return TRUE;
     }
     catch (RuntimeException $th) {
       $this->messenger->addMessage($this->t('Github error: @error', [
@@ -35,6 +34,10 @@ class Github extends DrupaleasyRepositoriesPluginBase {
       ]));
       return FALSE;
     }
+    catch (\Throwable $th) {
+      return FALSE;
+    }
+    return TRUE;
   }
 
   /**
@@ -58,15 +61,15 @@ class Github extends DrupaleasyRepositoriesPluginBase {
         $this->messenger->addMessage($this->t('Github error: @error', [
           '@error' => $th->getMessage(),
         ]));
-        return NULL;
+        return [];
       }
       catch (\Throwable $th) {
-        return NULL;
+        return [];
       }
       return $this->mapToCommonFormat($repo['full_name'], $repo['name'], $repo['description'], $repo['open_issues_count'], 'github', $repo['html_url']);
     }
     else {
-      return NULL;
+      return [];
     }
 
   }

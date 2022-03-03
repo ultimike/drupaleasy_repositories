@@ -9,7 +9,7 @@ use Drupal\Core\Plugin\DefaultPluginManager;
 /**
  * DrupaleasyRepositories plugin manager.
  */
-class DrupaleasyRepositoriesPluginManager extends DefaultPluginManager {
+final class DrupaleasyRepositoriesPluginManager extends DefaultPluginManager {
 
   /**
    * Constructs DrupaleasyRepositoriesPluginManager object.

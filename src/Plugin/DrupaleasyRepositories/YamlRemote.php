@@ -47,7 +47,7 @@ class YamlRemote extends DrupaleasyRepositoriesPluginBase {
       array_walk($repo_info, ['self', 'addSourceAndUri'], $uri);
       return $repo_info;
     }
-    return NULL;
+    return [];
   }
 
   /**

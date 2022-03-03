@@ -30,14 +30,14 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
   /**
    * The Entity type manager service.
    *
-   * @var Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityManager;
 
   /**
    * The DrupalEasy repositories batch service.
    *
-   * @var Drupal\drupaleasy_repositories\Batch
+   * @var \Drupal\drupaleasy_repositories\Batch
    */
   protected $batch;
 

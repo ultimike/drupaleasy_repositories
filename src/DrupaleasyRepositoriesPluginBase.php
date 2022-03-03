@@ -26,14 +26,14 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
   /**
    * Drupal's messenger service.
    *
-   * @var Drupal\Core\Messenger\MessengerInterface
+   * @var \Drupal\Core\Messenger\MessengerInterface
    */
   protected $messenger;
 
   /**
    * The Key repository service.
    *
-   * @var \Drupal\Key\KeyRepositoryInterface
+   * @var \Drupal\key\KeyRepositoryInterface
    */
   protected $keyRepository;
 

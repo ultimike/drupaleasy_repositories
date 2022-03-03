@@ -28,7 +28,7 @@ class RepositoryNodeUpdater extends QueueWorkerBase implements ContainerFactoryP
   /**
    * The Entity type manager service.
    *
-   * @var Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityManager;
 
@@ -56,7 +56,7 @@ class RepositoryNodeUpdater extends QueueWorkerBase implements ContainerFactoryP
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new self(
+    return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,

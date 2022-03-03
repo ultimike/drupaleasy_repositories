@@ -52,7 +52,7 @@ final class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new self(
+    return new static(
       $container->get('config.factory'),
       $container->get('plugin.manager.drupaleasy_repositories')
     );

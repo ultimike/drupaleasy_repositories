@@ -42,7 +42,7 @@ class DrupaleasyRepositoriesSubscriber implements EventSubscriberInterface {
   /**
    * User login event handler.
    *
-   * @param Drupal\drupaleasy_repositories\Event\UserLoginEvent $event
+   * @param \Drupal\drupaleasy_repositories\Event\UserLoginEvent $event
    *   User login event.
    */
   public function onUserLogin(UserLoginEvent $event) {

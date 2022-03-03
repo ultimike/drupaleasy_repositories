@@ -2,7 +2,7 @@
 
 namespace Drupal\drupaleasy_repositories;
 
-use Drupal\user\UserInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\node\Entity\Node;
@@ -33,7 +33,7 @@ class DrupaleasyRepositoriesService {
   /**
    * The Entity type manager service.
    *
-   * @var Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityManager;
 
@@ -49,7 +49,7 @@ class DrupaleasyRepositoriesService {
   /**
    * Drupal's messenger service.
    *
-   * @var Drupal\Core\Messenger\MessengerInterface
+   * @var \Drupal\Core\Messenger\MessengerInterface
    */
   protected $messenger;
 
@@ -78,13 +78,13 @@ class DrupaleasyRepositoriesService {
   /**
    * Update the repository nodes for a given account.
    *
-   * @param \Drupal\user\UserInterface $account
+   * @param \Drupal\Core\Entity\EntityInterface $account
    *   The user account whose repositories to update.
    *
    * @return bool
    *   TRUE if successful.
    */
-  public function updateRepositories(UserInterface $account) {
+  public function updateRepositories(EntityInterface $account) {
     $repos_info = [];
     $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
 
@@ -112,13 +112,13 @@ class DrupaleasyRepositoriesService {
    *
    * @param array $repos_info
    *   Repository info from API call.
-   * @param Drupal\user\UserInterface $account
+   * @param \Drupal\Core\Entity\EntityInterface $account
    *   The user account whose repositories to update.
    *
    * @return bool
    *   TRUE if successful.
    */
-  protected function updateRepositoryNodes(array $repos_info, UserInterface $account) {
+  protected function updateRepositoryNodes(array $repos_info, EntityInterface $account) {
     if (!$repos_info) {
       return TRUE;
     }
@@ -210,7 +210,7 @@ class DrupaleasyRepositoriesService {
    * @param int $uid
    *   The user id of the user submitting the URLs.
    *
-   * @return array
+   * @return string
    *   Errors reported by plugins.
    */
   public function validateRepositoryUrls(array $urls, int $uid) {
@@ -230,7 +230,7 @@ class DrupaleasyRepositoriesService {
         if ($uri = trim($url['uri'])) {
           $repo_info = [];
           // Check to see if the URI if valid for any enabled plugins.
-          /** @var DrupaleasyRepositoriesInterface $repository */
+          /** @var DrupaleasyRepositoriesInterface $repository_service */
           foreach ($repository_services as $repository_service) {
             if ($repository_service->validate($uri)) {
               $repo_info = $repository_service->getRepo($uri);
@@ -253,7 +253,7 @@ class DrupaleasyRepositoriesService {
     if ($errors) {
       return implode(' ', $errors);
     }
-    return NULL;
+    return '';
   }
 
   /**

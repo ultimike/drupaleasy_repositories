@@ -32,7 +32,7 @@ final class UpdateRepositoriesForm extends FormBase {
   /**
    * The Entity type manager service.
    *
-   * @var Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityManager;
 
@@ -49,7 +49,7 @@ final class UpdateRepositoriesForm extends FormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new self(
+    return new static(
       $container->get('drupaleasy_repositories.service'),
       $container->get('drupaleasy_repositories.batch'),
       $container->get('entity_type.manager'),
