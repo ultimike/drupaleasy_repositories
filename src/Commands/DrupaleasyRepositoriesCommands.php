@@ -71,6 +71,16 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
    *
    * @command der:update-repositories
    * @aliases der:ur
+   *
+   * With PHP 8, Drush commands can use the new PHP attributes instead of
+   * the @command and @aliases annotations. Example (use this outside of this
+   * comment):
+   *
+   * use Drush\Attributes as CLI;
+   * #[CLI\Command(name: 'der:update-repositories', aliases: ['der:ur'])]
+   *
+   * See https://www.drush.org/latest/commands/ for more info about PHP8
+   * attributes.
    */
   public function updateRepositories(array $options = ['uid' => NULL]) {
     if (!empty($options['uid'])) {
