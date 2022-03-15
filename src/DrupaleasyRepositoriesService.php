@@ -5,7 +5,6 @@ namespace Drupal\drupaleasy_repositories;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\node\Entity\Node;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 
@@ -146,7 +145,8 @@ class DrupaleasyRepositoriesService {
       $results = $query->execute();
 
       if ($results) {
-        $node = Node::load(reset($results));
+        /** @var \Drupal\node\Entity\Node $node */
+        $node = $node_storage->load(reset($results));
         if ($hash != $node->get('field_hash')->value) {
           // Something changed, update node.
           $node->setTitle = $info['label'];
@@ -163,7 +163,8 @@ class DrupaleasyRepositoriesService {
       }
       else {
         // Repository node doesn't exist - create a new one.
-        $node = Node::create([
+        /** @var \Drupal\node\Entity\Node $node */
+        $node = $node_storage->create([
           'uid' => $account->id(),
           'type' => 'repository',
           'title' => $info['label'],
@@ -188,7 +189,8 @@ class DrupaleasyRepositoriesService {
       ->condition('field_machine_name', array_keys($repos_info), 'NOT IN');
     $results = $query->execute();
     if ($results) {
-      $nodes = Node::loadMultiple($results);
+      /** @var \Drupal\node\Entity\Node $node */
+      $nodes = $node_storage->loadMultiple($results);
       foreach ($nodes as $node) {
         if (!$this->dryRun) {
           $node->delete();
