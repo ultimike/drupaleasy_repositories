@@ -1,0 +1,7 @@
+name: 'DrupalEasy Repositories Example plugin'
+type: module
+description: 'Create an example of a DrupalEasy Repositoreis plugin type for testing purposes.'
+package: Development
+core_version_requirement: ^8.8 || ^9
+tags:
+ - developer
