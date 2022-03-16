@@ -2,7 +2,7 @@
 
 namespace Drupal\drupaleasy_repositories\Plugin\DrupaleasyRepositories;
 
-use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginBase;
+use Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginBase;
 use Drupal\Component\Serialization\Yaml;
 
 /**

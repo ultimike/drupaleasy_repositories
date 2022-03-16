@@ -4,7 +4,7 @@ namespace Drupal\drupaleasy_repositories\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginManager;
+use Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -31,7 +31,7 @@ final class SettingsForm extends ConfigFormBase {
   /**
    * The DrupalEasy repositories manager service.
    *
-   * @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginManager
+   * @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager
    */
   protected $repositoriesManager;
 
@@ -40,7 +40,7 @@ final class SettingsForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
-   * @param \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginManager $drupaleasy_repositories_manager
+   * @param \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager $drupaleasy_repositories_manager
    *   The DrupalEasy repositories manager service.
    */
   public function __construct(ConfigFactoryInterface $config_factory, DrupaleasyRepositoriesPluginManager $drupaleasy_repositories_manager) {

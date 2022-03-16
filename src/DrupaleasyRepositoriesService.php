@@ -7,6 +7,7 @@ use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager;
 
 /**
  * This is the main class that calls all the enabled plugins.
@@ -18,7 +19,7 @@ class DrupaleasyRepositoriesService {
   /**
    * The plugin.manager.drupaleasy_repositories service.
    *
-   * @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginManager
+   * @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager
    */
   protected $pluginManagerDrupaleasyRepositories;
 
@@ -55,7 +56,7 @@ class DrupaleasyRepositoriesService {
   /**
    * Constructs a DrupaleasyRepositories object.
    *
-   * @param \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginManager $plugin_manager_drupaleasy_repositories
+   * @param \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager $plugin_manager_drupaleasy_repositories
    *   The plugin.manager.drupaleasy_repositories service.
    * @param \Drupal\Core\Config\ConfigFactory $config_factory
    *   The config.factory service.

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\drupaleasy_repositories;
+namespace Drupal\drupaleasy_repositories\DrupaleasyRepositories;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -27,7 +27,7 @@ class DrupaleasyRepositoriesPluginManager extends DefaultPluginManager {
       'Plugin/DrupaleasyRepositories',
       $namespaces,
       $module_handler,
-      'Drupal\drupaleasy_repositories\DrupaleasyRepositoriesInterface',
+      'Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesInterface',
       'Drupal\drupaleasy_repositories\Annotation\DrupaleasyRepositories'
     );
     $this->alterInfo('drupaleasy_repositories_info');
