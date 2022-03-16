@@ -3,7 +3,6 @@
 namespace Drupal\drupaleasy_repositories_example\Plugin\DrupaleasyRepositories;
 
 use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginBase;
-use Drupal\Component\Serialization\Yaml;
 
 /**
  * Plugin implementation of the drupaleasy_repositories.

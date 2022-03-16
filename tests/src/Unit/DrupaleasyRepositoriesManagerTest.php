@@ -3,6 +3,7 @@
 namespace Drupal\Tests\drupaleasy_repositories\Unit;
 
 use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
+use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginManager;
 use Drupal\Tests\UnitTestCase;
 
@@ -20,6 +21,21 @@ class DrupaleasyRepositoriesManagerTest extends UnitTestCase {
   protected $discovery;
 
   /**
+   * The messenger mock.
+   *
+   * @var \Drupal\Core]\Messenger\MessengerInterface|\PHPUnit_Framework_MockObject_MockObject
+   */
+  protected $messenger;
+
+
+  /**
+   * The key.repository mock.
+   *
+   * @var \Drupal\key\KeyRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject
+   */
+  protected $keyRepository;
+
+  /**
    * A list of Drupaleasy Repositories plugin definitions.
    *
    * @var array
@@ -30,6 +46,8 @@ class DrupaleasyRepositoriesManagerTest extends UnitTestCase {
       'class' => 'Drupal\drupaleasy_repositories_example\Plugin\DrupaleasyRepositories\ExamplePlugin',
       // @todo update this?
       'url' => 'drupaleasy_repositories_example',
+      'label' => 'Example plugin',
+      'description' => 'Example plugin for DrupalEasy Repositories tests.',
       'dependencies' => [],
     ],
   ];
@@ -37,22 +55,40 @@ class DrupaleasyRepositoriesManagerTest extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     // Mock a Discovery object to replace AnnotationClassDiscovery.
     $this->discovery = $this->createMock('Drupal\Component\Plugin\Discovery\DiscoveryInterface');
     $this->discovery->expects($this->any())
       ->method('getDefinitions')
       ->will($this->returnValue($this->definitions));
+
+    // Mock the messenger object.
+    $this->messenger = $this->getMockBuilder('\Drupal\Core\Messenger\MessengerInterface')
+          ->disableOriginalConstructor()
+          ->getMock();
+
+    // Mock the key.repository object.
+    $this->keyRepository = $this->getMockBuilder('\Drupal\key\KeyRepositoryInterface')
+          ->disableOriginalConstructor()
+          ->getMock();
+
+    // Create a dummy container.
+    $this->container = new ContainerBuilder();
+    $this->container->set('messenger', $this->messenger);
+    $this->container->set('key.repository', $this->keyRepository);
+    \Drupal::setContainer($this->container);
   }
 
   /**
    * Test creating an instance of the DrupaleasyRepositoriesManager.
    */
   public function testCreateInstance() {
+    // @todo Move this to setUp()?
     $namespaces = new \ArrayObject(['Drupal\drupaleasy_repositories' => '/var/www/html/web/modules/custom/drupaleasy_repositories/src/Plugin/DrupaleasyRepositories']);
     $cache_backend = $this->createMock('Drupal\Core\Cache\CacheBackendInterface');
 
+    // @todo Move this to setUp()?
     $module_handler = $this->createMock('Drupal\Core\Extension\ModuleHandlerInterface');
     $manager = new TestDrupaleasyRepositoriesPluginManager($namespaces, $cache_backend, $module_handler);
     $manager->setDiscovery($this->discovery);
@@ -61,6 +97,7 @@ class DrupaleasyRepositoriesManagerTest extends UnitTestCase {
     $plugin_def = $example_instance->getPluginDefinition();
 
     $this->assertInstanceOf('Drupal\drupaleasy_repositories_example\Plugin\DrupaleasyRepositories\ExamplePlugin', $example_instance);
+    $this->assertInstanceOf('Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginBase', $example_instance);
     $this->assertArrayHasKey('url', $plugin_def);
     $this->assertTrue($plugin_def['url'] == 'drupaleasy_repositories_example');
   }
@@ -68,7 +105,7 @@ class DrupaleasyRepositoriesManagerTest extends UnitTestCase {
 }
 
 /**
- * Provides a testing version of DevelGeneratePluginManager with an empty constructor.
+ * Provides a test version of DevelGeneratePluginManager.
  */
 class TestDrupaleasyRepositoriesPluginManager extends DrupaleasyRepositoriesPluginManager {
 
