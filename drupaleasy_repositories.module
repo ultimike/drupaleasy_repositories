@@ -8,16 +8,18 @@
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Render\Element;
 use Drupal\user\Entity\User;
-use Drupal\drupaleasy_repositories\Event\UserLoginEvent;
 
 /**
- * Implements hook_user_login().
+ * Implements hoo k_user_login().
  */
 function drupaleasy_repositories_user_login($account) {
-  $event = new UserLoginEvent($account);
-  /** @var \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $event_dispatcher */
-  $event_dispatcher = Drupal::service('event_dispatcher');
-  $event_dispatcher->dispatch(UserLoginEvent::EVENT_NAME, $event);
+  /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $der */
+  $der = \Drupal::service('drupaleasy_repositories.service');
+  /** @var \Drupal\Core\Messenger\MessengerInterface $messenger */
+  $messenger = \Drupal::service('messenger');
+  if ($der->updateRepositories($account)) {
+    $messenger->addStatus('Repository nodes updated.');
+  }
 }
 
 /**
@@ -30,14 +32,15 @@ function drupaleasy_repositories_cron() {
   $hour = time() / 3600 % 24;
   if ($hour == 1) {
     /** @var \Drupal\Core\Entity\EntityStorageInterface $user_storage */
-    $user_storage = Drupal::service('entity_type.manager')->getStorage('user');
+    $user_storage = \Drupal::service('entity_type.manager')->getStorage('user');
     $query = $user_storage->getQuery();
     $query->condition('status', '1');
     $users = $query->execute();
 
     // Create a Queue API item for each user.
     foreach ($users as $uid => $user) {
-      $queue = Drupal::queue('drupaleasy_repositories_repository_node_updater');
+      /** @var \Drupal\Core\Queue\QueueInterface $queue */
+      $queue = \Drupal::queue('drupaleasy_repositories_repository_node_updater');
       $queue->createItem(['uid' => $uid]);
     }
   }
@@ -62,7 +65,7 @@ function drupaleasy_repositories_form_user_form_alter(&$form, $form_state, $form
  */
 function _drupaleasy_repositories_url_help_text(&$element, &$form_state, &$form) {
   /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $repository_service */
-  $repository_service = Drupal::service('drupaleasy_repositories.service');
+  $repository_service = \Drupal::service('drupaleasy_repositories.service');
   $help_text = $repository_service->getValidatorHelpText();
   if ($help_text) {
     $element['uri']['#description'] = t('Valid URLs include: %help_text', ['%help_text' => $help_text]);
@@ -84,7 +87,7 @@ function _drupaleasy_repositories_url_help_text(&$element, &$form_state, &$form)
  */
 function _drupaleasy_repositories_user_form_validate(array $form, FormState &$form_state) {
   /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $repository_service */
-  $repository_service = Drupal::service('drupaleasy_repositories.service');
+  $repository_service = \Drupal::service('drupaleasy_repositories.service');
   $account = \Drupal::currentUser();
   $error = $repository_service->validateRepositoryUrls($form_state->getValue('field_repository_url'), $account->id());
 
@@ -106,7 +109,7 @@ function _drupaleasy_repositories_user_form_validate(array $form, FormState &$fo
  */
 function _drupaleasy_repositories_user_form_submit(array $form, FormState &$form_state) {
   /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $repository_service */
-  $repository_service = Drupal::service('drupaleasy_repositories.service');
+  $repository_service = \Drupal::service('drupaleasy_repositories.service');
   $account = User::load($form_state->getValue('uid'));
   $repository_service->updateRepositories($account);
 }

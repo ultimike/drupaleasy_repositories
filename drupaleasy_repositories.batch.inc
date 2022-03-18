@@ -34,6 +34,8 @@ function drupaleasy_update_repositories_batch_operation($uid, &$context) {
  */
 function drupaleasy_update_all_repositories_finished(bool $success, array $results, array $operations) {
   if ($success) {
+    // Note: the $results array isn't properly populated when run via Drush.
+    // See: https://github.com/drush-ops/drush/issues/5009
     if (isset($results['num'])) {
       $message = t('Updated repository nodes for @num users.', ['@num' => $results['num']]);
     }

@@ -6,7 +6,6 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager;
 use Drupal\node\Entity\Node;
 use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
@@ -50,13 +49,6 @@ class DrupaleasyRepositoriesService {
   protected $dryRun;
 
   /**
-   * Drupal's messenger service.
-   *
-   * @var \Drupal\Core\Messenger\MessengerInterface
-   */
-  protected $messenger;
-
-  /**
    * Drupal's event dispatcher service.
    *
    * @var \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher
@@ -74,17 +66,14 @@ class DrupaleasyRepositoriesService {
    *   The entity_type.manager service.
    * @param bool $dry_run
    *   The dry_run parameter.
-   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
-   *   Drupal's messenger service.
    * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $event_dispatcher
    *   Drupal's event dispatcher service.
    */
-  public function __construct(DrupaleasyRepositoriesPluginManager $plugin_manager_drupaleasy_repositories, ConfigFactory $config_factory, EntityTypeManagerInterface $entity_type_manager, bool $dry_run, MessengerInterface $messenger, ContainerAwareEventDispatcher $event_dispatcher) {
+  public function __construct(DrupaleasyRepositoriesPluginManager $plugin_manager_drupaleasy_repositories, ConfigFactory $config_factory, EntityTypeManagerInterface $entity_type_manager, bool $dry_run, ContainerAwareEventDispatcher $event_dispatcher) {
     $this->pluginManagerDrupaleasyRepositories = $plugin_manager_drupaleasy_repositories;
     $this->configFactory = $config_factory;
     $this->entityManager = $entity_type_manager;
     $this->dryRun = $dry_run;
-    $this->messenger = $messenger;
     $this->eventDispatcher = $event_dispatcher;
   }
 
@@ -140,11 +129,6 @@ class DrupaleasyRepositoriesService {
     $node_storage = $this->entityManager->getStorage('node');
 
     foreach ($repos_info as $key => $info) {
-      $this->messenger->addMessage($this->t('Found repo @name (@desc)', [
-        '@name' => $info['label'],
-        '@desc' => $info['description'],
-      ]));
-
       // Calculate hash value.
       $hash = md5(serialize($info));
 
@@ -161,6 +145,7 @@ class DrupaleasyRepositoriesService {
       if ($results) {
         /** @var \Drupal\node\Entity\Node $node */
         $node = $node_storage->load(reset($results));
+
         if ($hash != $node->get('field_hash')->value) {
           // Something changed, update node.
           $node->setTitle = $info['label'];

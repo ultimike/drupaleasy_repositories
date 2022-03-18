@@ -6,15 +6,9 @@ services:
     class: Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager
     parent: default_plugin_manager
 
-  drupaleasy_repositories.event_subscriber:
-    class: Drupal\drupaleasy_repositories\EventSubscriber\DrupaleasyRepositoriesSubscriber
-    arguments: ['@messenger', '@drupaleasy_repositories.service']
-    tags:
-      - { name: event_subscriber }
-
   drupaleasy_repositories.service:
     class: Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService
-    arguments: ['@plugin.manager.drupaleasy_repositories', '@config.factory', '@entity_type.manager', '%drupaleasy_repositories.dry_run%', '@messenger', '@event_dispatcher']
+    arguments: ['@plugin.manager.drupaleasy_repositories', '@config.factory', '@entity_type.manager', '%drupaleasy_repositories.dry_run%', '@event_dispatcher']
 
   drupaleasy_repositories.batch:
     class: Drupal\drupaleasy_repositories\Batch
