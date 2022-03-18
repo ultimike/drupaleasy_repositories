@@ -14,7 +14,7 @@ services:
 
   drupaleasy_repositories.service:
     class: Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService
-    arguments: ['@plugin.manager.drupaleasy_repositories', '@config.factory', '@entity_type.manager', '%drupaleasy_repositories.dry_run%', '@messenger']
+    arguments: ['@plugin.manager.drupaleasy_repositories', '@config.factory', '@entity_type.manager', '%drupaleasy_repositories.dry_run%', '@messenger', '@event_dispatcher']
 
   drupaleasy_repositories.batch:
     class: Drupal\drupaleasy_repositories\Batch
