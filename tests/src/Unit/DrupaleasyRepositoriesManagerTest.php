@@ -4,7 +4,7 @@ namespace Drupal\Tests\drupaleasy_repositories\Unit;
 
 use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
-use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginManager;
+use Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager;
 use Drupal\Tests\UnitTestCase;
 
 /**
@@ -19,6 +19,13 @@ class DrupaleasyRepositoriesManagerTest extends UnitTestCase {
    * @var \Drupal\Component\Plugin\Discovery\DiscoveryInterface|\PHPUnit_Framework_MockObject_MockObject
    */
   protected $discovery;
+
+  /**
+   * The test Plugin manager mock.
+   *
+   * @var TestDrupaleasyRepositoriesPluginManager
+   */
+  protected $manager;
 
   /**
    * The messenger mock.
@@ -65,35 +72,37 @@ class DrupaleasyRepositoriesManagerTest extends UnitTestCase {
 
     // Mock the messenger object.
     $this->messenger = $this->getMockBuilder('\Drupal\Core\Messenger\MessengerInterface')
-          ->disableOriginalConstructor()
-          ->getMock();
+      ->disableOriginalConstructor()
+      ->getMock();
 
     // Mock the key.repository object.
     $this->keyRepository = $this->getMockBuilder('\Drupal\key\KeyRepositoryInterface')
-          ->disableOriginalConstructor()
-          ->getMock();
+      ->disableOriginalConstructor()
+      ->getMock();
 
     // Create a dummy container.
     $this->container = new ContainerBuilder();
     $this->container->set('messenger', $this->messenger);
     $this->container->set('key.repository', $this->keyRepository);
     \Drupal::setContainer($this->container);
+
+    // Create a mock cache backend.
+    $namespaces = new \ArrayObject(['Drupal\drupaleasy_repositories' => '/var/www/html/web/modules/custom/drupaleasy_repositories/src/Plugin/DrupaleasyRepositories']);
+    $cache_backend = $this->createMock('Drupal\Core\Cache\CacheBackendInterface');
+
+    // Create a mock module handler.
+    $module_handler = $this->createMock('Drupal\Core\Extension\ModuleHandlerInterface');
+
+    // Create the test Plugin manager.
+    $this->manager = new TestDrupaleasyRepositoriesPluginManager($namespaces, $cache_backend, $module_handler);
+    $this->manager->setDiscovery($this->discovery);
   }
 
   /**
    * Test creating an instance of the DrupaleasyRepositoriesManager.
    */
   public function testCreateInstance() {
-    // @todo Move this to setUp()?
-    $namespaces = new \ArrayObject(['Drupal\drupaleasy_repositories' => '/var/www/html/web/modules/custom/drupaleasy_repositories/src/Plugin/DrupaleasyRepositories']);
-    $cache_backend = $this->createMock('Drupal\Core\Cache\CacheBackendInterface');
-
-    // @todo Move this to setUp()?
-    $module_handler = $this->createMock('Drupal\Core\Extension\ModuleHandlerInterface');
-    $manager = new TestDrupaleasyRepositoriesPluginManager($namespaces, $cache_backend, $module_handler);
-    $manager->setDiscovery($this->discovery);
-
-    $example_instance = $manager->createInstance('drupaleasy_repositories_example');
+    $example_instance = $this->manager->createInstance('drupaleasy_repositories_example');
     $plugin_def = $example_instance->getPluginDefinition();
 
     $this->assertInstanceOf('Drupal\drupaleasy_repositories_example\Plugin\DrupaleasyRepositories\ExamplePlugin', $example_instance);
