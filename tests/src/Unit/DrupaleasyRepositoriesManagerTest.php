@@ -16,7 +16,7 @@ class DrupaleasyRepositoriesManagerTest extends UnitTestCase {
   /**
    * The plugin discovery.
    *
-   * @var \Drupal\Component\Plugin\Discovery\DiscoveryInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \PHPUnit\Framework\MockObject\MockObject
    */
   protected $discovery;
 
@@ -30,7 +30,7 @@ class DrupaleasyRepositoriesManagerTest extends UnitTestCase {
   /**
    * The messenger mock.
    *
-   * @var \Drupal\Core]\Messenger\MessengerInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \PHPUnit\Framework\MockObject\MockObject
    */
   protected $messenger;
 
@@ -38,7 +38,7 @@ class DrupaleasyRepositoriesManagerTest extends UnitTestCase {
   /**
    * The key.repository mock.
    *
-   * @var \Drupal\key\KeyRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \PHPUnit\Framework\MockObject\MockObject
    */
   protected $keyRepository;
 
@@ -51,7 +51,7 @@ class DrupaleasyRepositoriesManagerTest extends UnitTestCase {
     'drupaleasy_repositories_example' => [
       'id' => 'drupaleasy_repositories_example',
       'class' => 'Drupal\drupaleasy_repositories_example\Plugin\DrupaleasyRepositories\ExamplePlugin',
-      // @todo update this?
+      // @todo update this. Probably get rid of 'url' since it isn't part of the definition?
       'url' => 'drupaleasy_repositories_example',
       'label' => 'Example plugin',
       'description' => 'Example plugin for DrupalEasy Repositories tests.',
@@ -65,7 +65,8 @@ class DrupaleasyRepositoriesManagerTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
     // Mock a Discovery object to replace AnnotationClassDiscovery.
-    $this->discovery = $this->createMock('Drupal\Component\Plugin\Discovery\DiscoveryInterface');
+    $this->discovery = $this->createMock('\Drupal\Component\Plugin\Discovery\DiscoveryInterface');
+    // For some reason PHP Intelephense flags "expects()".
     $this->discovery->expects($this->any())
       ->method('getDefinitions')
       ->will($this->returnValue($this->definitions));
