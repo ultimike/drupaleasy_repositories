@@ -88,7 +88,9 @@ class DrupaleasyRepositoriesService {
    */
   public function updateRepositories(EntityInterface $account) {
     $repos_info = [];
-    $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
+    // Use Null Coalesce Operator in case no repositories are active.
+    // See https://wiki.php.net/rfc/isset_ternary
+    $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories') ?? [];
 
     foreach ($repository_location_ids as $repository_location_id) {
       if (!empty($repository_location_id)) {
