@@ -97,7 +97,7 @@ class DrupaleasyRepositoriesService {
         /** @var DrupaleasyRepositoriesInterface $repository_location */
         $repository_location = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
         // Loop through repository URLs.
-        foreach ($account->field_repository_url as $url) {
+        foreach ($account->field_repository_url ?? [] as $url) {
           // Check if URL validates for this repository.
           if ($repository_location->validate($url->uri)) {
             // Confirm repository exists.
@@ -141,7 +141,8 @@ class DrupaleasyRepositoriesService {
       $query->condition('type', 'repository')
         ->condition('uid', $account->id())
         ->condition('field_machine_name', $key)
-        ->condition('field_source', $info['source']);
+        ->condition('field_source', $info['source'])
+        ->accessCheck(FALSE);
       $results = $query->execute();
 
       if ($results) {
@@ -189,7 +190,8 @@ class DrupaleasyRepositoriesService {
     $query = $node_storage->getQuery();
     $query->condition('type', 'repository')
       ->condition('uid', $account->id())
-      ->condition('field_machine_name', array_keys($repos_info), 'NOT IN');
+      ->condition('field_machine_name', array_keys($repos_info), 'NOT IN')
+      ->accessCheck(FALSE);
     $results = $query->execute();
     if ($results) {
       /** @var \Drupal\node\Entity\Node $node */
@@ -315,7 +317,8 @@ class DrupaleasyRepositoriesService {
     $query = $node_storage->getQuery();
     $query->condition('type', 'repository')
       ->condition('uid', $uid, '<>')
-      ->condition('field_hash', $hash);
+      ->condition('field_hash', $hash)
+      ->accessCheck(FALSE);
     $results = $query->execute();
 
     if (count($results)) {
@@ -334,7 +337,7 @@ class DrupaleasyRepositoriesService {
    */
   protected function repoUpdated(Node $node, string $action) {
     $event = new RepoUpdatedEvent($node, $action);
-    $this->eventDispatcher->dispatch(RepoUpdatedEvent::EVENT_NAME, $event);
+    $this->eventDispatcher->dispatch($event, RepoUpdatedEvent::EVENT_NAME);
   }
 
 }

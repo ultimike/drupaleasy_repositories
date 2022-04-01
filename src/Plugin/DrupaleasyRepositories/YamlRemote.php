@@ -54,7 +54,7 @@ class YamlRemote extends DrupaleasyRepositoriesPluginBase {
    * {@inheritdoc}
    */
   public function validate($uri) {
-    $pattern = '/^(https:\/\/)[a-zA-Z0-9_\-\/\.]+\.yml/';
+    $pattern = '/^(https?:\/\/)[a-zA-Z0-9_\-\/\.]+\.yml/';
 
     if (preg_match($pattern, $uri) == 1) {
       return TRUE;
@@ -66,7 +66,7 @@ class YamlRemote extends DrupaleasyRepositoriesPluginBase {
    * {@inheritdoc}
    */
   public function validateHelpText() {
-    return 'https://anything.anything/anything/anything.yml';
+    return 'https://anything.anything/anything/anything.yml (or "http")';
   }
 
 }
