@@ -191,8 +191,11 @@ class AddYmlRepoTest extends BrowserTestBase {
     $session->statusCodeEquals(200);
 
     // Get the full path to the test .yml file.
+    /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
-    $module_full_path = \Drupal::request()->getUri() . $module_handler->getModule('drupaleasy_repositories')->getPath();
+    /** @var \Drupal\Core\Extension\Extension $module */
+    $module = $module_handler->getModule('drupaleasy_repositories');
+    $module_full_path = \Drupal::request()->getUri() . $module->getPath();
 
     // Add the test .yml file path and submit the form.
     // @todo update path to yml file - put in test directory.
@@ -204,7 +207,7 @@ class AddYmlRepoTest extends BrowserTestBase {
     $session->responseContains('The changes have been saved.');
     // @todo Document that we can check for the followimg message unless we also
     // enable the drupaleasy_notify module (which we don't want to do).
-    //$session->responseContains('The repo named <em class="placeholder">The Batman repository</em> has been created');
+    // $session->responseContains('The repo named <em class="placeholder">The Batman repository</em> has been created');
 
     // Find the new repository node.
     /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
@@ -213,17 +216,21 @@ class AddYmlRepoTest extends BrowserTestBase {
     $results = $query->execute();
     $session->assert(count($results) == 1, 'One repository node was found.');
 
-    // @todo check repository node values.
-  }
+    // @todo Document the fact that the next 6 lines could be written as:
+    // $node = \Drupal::entityTypeManager()->->getStorage('node')->load(reset($results));
+    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
+    $entity_type_manager = \Drupal::entityTypeManager();
+    /** @var \Drupal\Core\Entity\EntityStorageInterface $storage */
+    $node_storage = $entity_type_manager->getStorage('node');
+    /** @var \Drupal\Core\Entity\EntityInterface $node */
+    $node = $node_storage->load(reset($results));
 
-  /**
-   * Test callback.
-   */
-  // public function testSomething() {
-  //   $admin_user = $this->drupalCreateUser(['access administration pages']);
-  //   $this->drupalLogin($admin_user);
-  //   $this->drupalGet('admin');
-  //   $this->assertSession()->elementExists('xpath', '//h1[text() = "Administration"]');
-  // }
+    // Check values.
+    $session->assert($node->field_machine_name->value, 'batman-repo');
+    $session->assert($node->field_source->value, 'yaml');
+    $session->assert($node->title->value, 'The Batman repository');
+    $session->assert($node->field_description->value, 'This is where Batman keeps all his crime-fighting code.');
+    $session->assert($node->field_number_of_issues->value, '6');
+  }
 
 }
