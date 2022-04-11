@@ -17,22 +17,6 @@ use Drupal\Component\Serialization\Yaml;
 class YamlRemote extends DrupaleasyRepositoriesPluginBase {
 
   /**
-   * Callback function for array_walk to add source value.
-   *
-   * @param array $item
-   *   The array item.
-   * @param string $key
-   *   The array key.
-   * @param string $uri
-   *   The uri of the repository.
-   */
-  protected function addSourceAndUri(array &$item, string $key, string $uri) {
-    // This needs to be the same as the plugin ID.
-    $item['source'] = 'yaml';
-    $item['url'] = $uri;
-  }
-
-  /**
    * Gets a single repository from the .yml file.
    *
    * @param string $uri
@@ -44,8 +28,9 @@ class YamlRemote extends DrupaleasyRepositoriesPluginBase {
   public function getRepo(string $uri) {
     if ($file_content = file_get_contents($uri)) {
       $repo_info = Yaml::decode($file_content);
-      array_walk($repo_info, ['self', 'addSourceAndUri'], $uri);
-      return $repo_info;
+      $full_name = array_key_first($repo_info);
+      $repo = reset($repo_info);
+      return $this->mapToCommonFormat($full_name, $repo['label'], $repo['description'], $repo['num_open_issues'], 'yaml', $uri);
     }
     return [];
   }

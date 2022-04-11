@@ -106,9 +106,22 @@ class YamlRemoteTest extends UnitTestCase {
    * @covers ::getRepo
    */
   public function testGetRepo() {
-    // @todo Break up the getRepo method into fetching the file and doing the addSourceAndUri bit.
-    $repo = $this->yamlRemote->getRepo('http://localhost/modules/contrib/drupaleasy_repositories/tests/assets/batman-repo.yml');
+    $repo = $this->yamlRemote->getRepo(__DIR__ . '/../../assets/batman-repo.yml');
+    // getRepo() returns an array of repositories, in this case only one.
+    $repo = reset($repo);
     self::assertEquals('yaml', $repo['source'], 'Source does not match.');
+  }
+
+  /**
+   * Test that the source and uri can be set properly.
+   *
+   * @covers ::addSourceAndUri
+   */
+  public function gggtestAddSourceAndUri() {
+    // Use reflection to make addSourceAndUri() public.
+    $reflection_addSourceAndUri = new \ReflectionMethod($this->yamlRemote, 'addSourceAndUri');
+    $reflection_addSourceAndUri->setAccessible(TRUE);
+    $this->assertEquals(4, $reflection_addSourceAndUri->invokeArgs($controller, [2,2]));
   }
 
 }
