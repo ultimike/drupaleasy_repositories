@@ -5,6 +5,7 @@ namespace Drupal\Tests\drupaleasy_repositories\Functional;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\Tests\drupaleasy_repositories\Traits\RepositoryContentTypeTrait;
 
 /**
  * Test description.
@@ -12,6 +13,7 @@ use Drupal\field\Entity\FieldStorageConfig;
  * @group drupaleasy_repositories
  */
 class AddYmlRepoTest extends BrowserTestBase {
+  use RepositoryContentTypeTrait;
 
   /**
    * {@inheritdoc}
@@ -21,7 +23,12 @@ class AddYmlRepoTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected static $modules = ['drupaleasy_repositories', 'node', 'link', 'key'];
+  protected static $modules = [
+    'drupaleasy_repositories',
+    'node',
+    'link',
+    'key',
+  ];
 
   /**
    * {@inheritdoc}
@@ -58,95 +65,7 @@ class AddYmlRepoTest extends BrowserTestBase {
     $session->checkboxChecked('edit-repositories-yaml-remote');
     $session->checkboxNotChecked('edit-repositories-github');
 
-    // Create content type for repository nodes.
-    // @todo Document that this requires the 'node' module.
-    // drupalCreateContentType is an alias for createContentType
-    $this->contentType = $this->createContentType(['type' => 'repository']);
-
-    // Create Description field.
-    FieldStorageConfig::create([
-      'field_name' => 'field_description',
-      'type' => 'text_long',
-      'entity_type' => 'node',
-      'cardinality' => 1,
-    ])->save();
-    FieldConfig::create([
-      'field_name' => 'field_description',
-      'entity_type' => 'node',
-      'bundle' => 'repository',
-      'label' => 'Description',
-    ])->save();
-
-    // Create Hash field.
-    FieldStorageConfig::create([
-      'field_name' => 'field_hash',
-      'type' => 'string',
-      'entity_type' => 'node',
-      'cardinality' => 1,
-    ])->save();
-    FieldConfig::create([
-      'field_name' => 'field_hash',
-      'entity_type' => 'node',
-      'bundle' => 'repository',
-      'label' => 'Hash',
-    ])->save();
-
-    // Create Machine name field.
-    FieldStorageConfig::create([
-      'field_name' => 'field_machine_name',
-      'type' => 'string',
-      'entity_type' => 'node',
-      'cardinality' => 1,
-    ])->save();
-    FieldConfig::create([
-      'field_name' => 'field_machine_name',
-      'entity_type' => 'node',
-      'bundle' => 'repository',
-      'label' => 'Machine name',
-    ])->save();
-
-    // Create Number of open issues field.
-    FieldStorageConfig::create([
-      'field_name' => 'field_number_of_issues',
-      'type' => 'integer',
-      'entity_type' => 'node',
-      'cardinality' => 1,
-    ])->save();
-    FieldConfig::create([
-      'field_name' => 'field_number_of_issues',
-      'entity_type' => 'node',
-      'bundle' => 'repository',
-      'label' => 'Number of open issues',
-    ])->save();
-
-    // Create Source field.
-    FieldStorageConfig::create([
-      'field_name' => 'field_source',
-      'type' => 'string',
-      'entity_type' => 'node',
-      'cardinality' => 1,
-    ])->save();
-    FieldConfig::create([
-      'field_name' => 'field_source',
-      'entity_type' => 'node',
-      'bundle' => 'repository',
-      'label' => 'Source',
-    ])->save();
-
-    // Create URL field.
-    // @todo Document that this requires the link module as part of this test.
-    FieldStorageConfig::create([
-      'field_name' => 'field_url',
-      'type' => 'link',
-      'entity_type' => 'node',
-      'cardinality' => 1,
-    ])->save();
-    FieldConfig::create([
-      'field_name' => 'field_url',
-      'entity_type' => 'node',
-      'bundle' => 'repository',
-      'label' => 'URL',
-    ])->save();
+    $this->createRepositoryContentType();
 
     // Create multivalued Repositories URL field for user profiles.
     // @todo Document that this requires the link module as part of this test.

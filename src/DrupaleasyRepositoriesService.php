@@ -225,7 +225,10 @@ class DrupaleasyRepositoriesService {
     $errors = [];
     $repository_services = [];
 
-    $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
+    $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories') ?? [];
+    if (!$repository_location_ids) {
+      return 'There are no enabled repository plugins';
+    }
 
     foreach ($repository_location_ids as $repository_location_id) {
       if (!empty($repository_location_id)) {
@@ -243,7 +246,7 @@ class DrupaleasyRepositoriesService {
             if ($repository_service->validate($uri)) {
               $repo_info = $repository_service->getRepo($uri);
               if (!$repo_info) {
-                $errors[] = $this->t('The url %uri is not a valid url.', ['%uri' => $uri]);
+                $errors[] = $this->t('The repo at the url %uri was not found.', ['%uri' => $uri]);
               }
             }
           }
@@ -261,7 +264,13 @@ class DrupaleasyRepositoriesService {
     if ($errors) {
       return implode(' ', $errors);
     }
-    return '';
+    if ($repo_info) {
+      return '';
+    }
+    else {
+      // No repo was found.
+      return 'No repo was found.';
+    }
   }
 
   /**
@@ -316,7 +325,6 @@ class DrupaleasyRepositoriesService {
     /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
     $query = $node_storage->getQuery();
     $query->condition('type', 'repository')
-      ->condition('uid', $uid, '<>')
       ->condition('field_hash', $hash)
       ->accessCheck(FALSE);
     $results = $query->execute();
