@@ -112,16 +112,4 @@ class YamlRemoteTest extends UnitTestCase {
     self::assertEquals('yaml', $repo['source'], 'Source does not match.');
   }
 
-  /**
-   * Test that the source and uri can be set properly.
-   *
-   * @covers ::addSourceAndUri
-   */
-  public function gggtestAddSourceAndUri() {
-    // Use reflection to make addSourceAndUri() public.
-    $reflection_addSourceAndUri = new \ReflectionMethod($this->yamlRemote, 'addSourceAndUri');
-    $reflection_addSourceAndUri->setAccessible(TRUE);
-    $this->assertEquals(4, $reflection_addSourceAndUri->invokeArgs($controller, [2,2]));
-  }
-
 }
