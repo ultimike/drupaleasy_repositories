@@ -117,15 +117,14 @@ class AddYmlRepoTest extends BrowserTestBase {
     $module_full_path = \Drupal::request()->getUri() . $module->getPath();
 
     // Add the test .yml file path and submit the form.
-    // @todo update path to yml file - put in test directory.
     $edit = [
       'edit-field-repository-url-0-uri' => $module_full_path . '/tests/assets/batman-repo.yml',
     ];
     $this->submitForm($edit, 'Save');
     $session->statusCodeEquals(200);
     $session->responseContains('The changes have been saved.');
-    // @todo Document that we can check for the followimg message unless we also
-    // enable the drupaleasy_notify module (which we don't want to do).
+    // @todo Document that we can't check for the followimg message unless we
+    // also enable the drupaleasy_notify module (which we don't want to do).
     // $session->responseContains('The repo named <em class="placeholder">The Batman repository</em> has been created');
 
     // Find the new repository node.
