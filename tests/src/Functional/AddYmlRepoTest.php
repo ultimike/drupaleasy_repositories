@@ -24,10 +24,15 @@ class AddYmlRepoTest extends BrowserTestBase {
    * {@inheritdoc}
    */
   protected static $modules = [
-    'drupaleasy_repositories',
     'node',
     'link',
     'key',
+    'views',
+    'menu_ui',
+    'path',
+    'text',
+    'user',
+    'drupaleasy_repositories',
   ];
 
   /**
@@ -144,6 +149,7 @@ class AddYmlRepoTest extends BrowserTestBase {
     $node = $node_storage->load(reset($results));
 
     // Check values.
+    // @todo check values on the page.
     $session->assert($node->field_machine_name->value, 'batman-repo');
     $session->assert($node->field_source->value, 'yaml');
     $session->assert($node->title->value, 'The Batman repository');

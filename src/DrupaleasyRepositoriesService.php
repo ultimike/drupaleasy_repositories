@@ -281,7 +281,7 @@ class DrupaleasyRepositoriesService {
    */
   public function getValidatorHelpText() {
     $repositories = [];
-    $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories');
+    $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories') ?? [];
 
     foreach ($repository_location_ids as $repository_location_id) {
       if (!empty($repository_location_id)) {
@@ -326,6 +326,7 @@ class DrupaleasyRepositoriesService {
     $query = $node_storage->getQuery();
     $query->condition('type', 'repository')
       ->condition('field_hash', $hash)
+      ->condition('uid', $uid, '<>')
       ->accessCheck(FALSE);
     $results = $query->execute();
 

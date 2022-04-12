@@ -41,7 +41,7 @@ class YamlRemote extends DrupaleasyRepositoriesPluginBase {
   public function validate($uri) {
     $pattern = '/^(https?:\/\/)[a-zA-Z0-9_\-\/\.]+\.yml/';
 
-    if (preg_match($pattern, $uri) == 1) {
+    if (preg_match($pattern, $uri) === 1) {
       return TRUE;
     }
     return FALSE;

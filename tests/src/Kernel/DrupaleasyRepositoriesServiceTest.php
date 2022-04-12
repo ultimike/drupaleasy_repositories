@@ -115,7 +115,8 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
     $reflection_is_unique->setAccessible(TRUE);
     $return = $reflection_is_unique->invokeArgs(
       $this->drupaleasyRepositoriesService,
-      [$repo, 1]
+      // Use $uid = 999 to ensure it is different from $this->adminUser.
+      [$repo, 999]
     );
     $this->assertEquals($expected, $return);
   }
