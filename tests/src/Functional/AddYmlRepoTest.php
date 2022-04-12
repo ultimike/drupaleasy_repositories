@@ -24,14 +24,11 @@ class AddYmlRepoTest extends BrowserTestBase {
    * {@inheritdoc}
    */
   protected static $modules = [
-    'node',
-    'link',
-    'key',
-    'views',
-    'menu_ui',
-    'path',
-    'text',
-    'user',
+    // @todo Document that because we're importing config from config/install
+    // we need to list all dependencies (including core modules) in the info.yml
+    // file. Because we do that, we don't have to list all dependencies here as
+    // well. By putting config in config/install, we won't need to create
+    // the repository content type and fields in code.
     'drupaleasy_repositories',
   ];
 
@@ -70,23 +67,23 @@ class AddYmlRepoTest extends BrowserTestBase {
     $session->checkboxChecked('edit-repositories-yaml-remote');
     $session->checkboxNotChecked('edit-repositories-github');
 
-    $this->createRepositoryContentType();
+    // $this->createRepositoryContentType();
 
-    // Create multivalued Repositories URL field for user profiles.
-    // @todo Document that this requires the link module as part of this test.
-    FieldStorageConfig::create([
-      'field_name' => 'field_repository_url',
-      'type' => 'link',
-      'entity_type' => 'user',
-      // @todo Document that cardinality = -1 is unlimited (multivalued).
-      'cardinality' => -1,
-    ])->save();
-    FieldConfig::create([
-      'field_name' => 'field_repository_url',
-      'entity_type' => 'user',
-      'bundle' => 'user',
-      'label' => 'Repository URL',
-    ])->save();
+    // // Create multivalued Repositories URL field for user profiles.
+    // // @todo Document that this requires the link module as part of this test.
+    // FieldStorageConfig::create([
+    //   'field_name' => 'field_repository_url',
+    //   'type' => 'link',
+    //   'entity_type' => 'user',
+    //   // @todo Document that cardinality = -1 is unlimited (multivalued).
+    //   'cardinality' => -1,
+    // ])->save();
+    // FieldConfig::create([
+    //   'field_name' => 'field_repository_url',
+    //   'entity_type' => 'user',
+    //   'bundle' => 'user',
+    //   'label' => 'Repository URL',
+    // ])->save();
     /** @var \Drupal\Core\Entity\EntityDisplayRepository $entity_display_repository  */
     $entity_display_repository = \Drupal::service('entity_display.repository');
     $entity_display_repository->getFormDisplay('user', 'user', 'default')
