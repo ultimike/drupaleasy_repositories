@@ -53,9 +53,9 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
     parent::setUp();
     $this->drupaleasyRepositoriesService = $this->container->get('drupaleasy_repositories.service');
 
-    // Enable the Yaml repository plugin.
+    // Enable the .yml repository plugin.
     $config = $this->config('drupaleasy_repositories.settings');
-    $config->set('repositories', ['yaml_remote' => 'yaml_remote']);
+    $config->set('repositories', ['yml_remote' => 'yml_remote']);
     $config->save();
 
     $this->installEntitySchema('user');
@@ -74,7 +74,7 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
       'title' => $repo['label'],
       'field_machine_name' => array_key_first($batman_repo),
       'field_url' => $repo['url'],
-      'field_hash' => 'ac57ab6bbd91ac9c87d45135944d8869',
+      'field_hash' => '06b2ffbb0eece1fee308a6429c287c35',
       'field_number_of_issues' => $repo['num_open_issues'],
       'field_source' => $repo['source'],
       'field_description' => $repo['description'],
@@ -91,7 +91,7 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
       'label' => 'The Superman repository',
       'description' => 'This is where Superman keeps all his crime-fighting code.',
       'num_open_issues' => 0,
-      'source' => 'yaml',
+      'source' => 'yml',
       'url' => 'https://example.com/superman-repo.yml',
     ];
     return [

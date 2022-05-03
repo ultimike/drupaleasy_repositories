@@ -3,21 +3,21 @@
 namespace Drupal\Tests\drupaleasy_repositories\Unit;
 
 use Drupal\Tests\UnitTestCase;
-use Drupal\drupaleasy_repositories\Plugin\DrupaleasyRepositories\YamlRemote;
+use Drupal\drupaleasy_repositories\Plugin\DrupaleasyRepositories\YmlRemote;
 
 /**
  * Test description.
  *
  * @group drupaleasy_repositories
  */
-class YamlRemoteTest extends UnitTestCase {
+class YmlRemoteTest extends UnitTestCase {
 
   /**
-   * The Yaml Remote plugin.
+   * The .yml Remote plugin.
    *
-   * @var \Drupal\drupaleasy_repositories\Plugin\DrupaleasyRepositories\YamlRemote
+   * @var \Drupal\drupaleasy_repositories\Plugin\DrupaleasyRepositories\YmlRemote
    */
-  protected $yamlRemote;
+  protected $ymlRemote;
 
   /**
    * Drupal's messenger service.
@@ -49,7 +49,7 @@ class YamlRemoteTest extends UnitTestCase {
       ->disableOriginalConstructor()
       ->getMock();
 
-    $this->yamlRemote = new YamlRemote([], '', [], $this->messenger, $this->keyRepository);
+    $this->ymlRemote = new YmlRemote([], '', [], $this->messenger, $this->keyRepository);
   }
 
   /**
@@ -58,7 +58,7 @@ class YamlRemoteTest extends UnitTestCase {
    * @covers ::validateHelpText
    */
   public function testValidateHelpText() {
-    self::assertEquals('https://anything.anything/anything/anything.yml (or "http")', $this->yamlRemote->validateHelpText(), 'Help text does not match.');
+    self::assertEquals('https://anything.anything/anything/anything.yml (or "http")', $this->ymlRemote->validateHelpText(), 'Help text does not match.');
   }
 
   /**
@@ -69,7 +69,7 @@ class YamlRemoteTest extends UnitTestCase {
    * @covers ::validate
    */
   public function testValidate($testString, $expected) {
-    self::assertEquals($expected, $this->yamlRemote->validate($testString));
+    self::assertEquals($expected, $this->ymlRemote->validate($testString));
   }
 
   /**
@@ -106,10 +106,10 @@ class YamlRemoteTest extends UnitTestCase {
    * @covers ::getRepo
    */
   public function testGetRepo() {
-    $repo = $this->yamlRemote->getRepo(__DIR__ . '/../../assets/batman-repo.yml');
+    $repo = $this->ymlRemote->getRepo(__DIR__ . '/../../assets/batman-repo.yml');
     // getRepo() returns an array of repositories, in this case only one.
     $repo = reset($repo);
-    self::assertEquals('yaml', $repo['source'], 'Source does not match.');
+    self::assertEquals('yml', $repo['source'], 'Source does not match.');
   }
 
 }

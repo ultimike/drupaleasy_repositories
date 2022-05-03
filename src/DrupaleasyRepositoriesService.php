@@ -210,7 +210,7 @@ class DrupaleasyRepositoriesService {
    * Validate repository URLs.
    *
    * Validate the URLs are valid based on the enabled plugins and ensure they
-   * haven't been added by another user. This only validates non-yaml
+   * haven't been added by another user. This only validates non-yml
    * repository URLs.
    *
    * @param array $urls

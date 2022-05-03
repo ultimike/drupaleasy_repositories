@@ -34,15 +34,15 @@ class DrupaleasyRepositoriesManagerTest extends KernelTestBase {
   }
 
   /**
-   * Test creating an instance of the Yaml Remote plugin.
+   * Test creating an instance of the .yml Remote plugin.
    */
-  public function testYamlRemoteInstance() {
-    $example_instance = $this->manager->createInstance('yaml_remote');
+  public function testYmlRemoteInstance() {
+    $example_instance = $this->manager->createInstance('yml_remote');
     $plugin_def = $example_instance->getPluginDefinition();
-    $this->assertInstanceOf('Drupal\drupaleasy_repositories\Plugin\DrupaleasyRepositories\YamlRemote', $example_instance);
+    $this->assertInstanceOf('Drupal\drupaleasy_repositories\Plugin\DrupaleasyRepositories\YmlRemote', $example_instance);
     $this->assertInstanceOf('Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginBase', $example_instance);
     $this->assertArrayHasKey('label', $plugin_def);
-    $this->assertTrue($plugin_def['label'] == 'Remote Yaml file');
+    $this->assertTrue($plugin_def['label'] == 'Remote .yml file');
   }
 
   /**

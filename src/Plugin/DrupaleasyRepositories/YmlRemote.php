@@ -9,12 +9,12 @@ use Drupal\Component\Serialization\Yaml;
  * Plugin implementation of the drupaleasy_repositories.
  *
  * @DrupaleasyRepositories(
- *   id = "yaml_remote",
- *   label = @Translation("Remote Yaml file"),
- *   description = @Translation("Remote .yaml file that includes repository metadata")
+ *   id = "yml_remote",
+ *   label = @Translation("Remote .yml file"),
+ *   description = @Translation("Remote .yml file that includes repository metadata")
  * )
  */
-class YamlRemote extends DrupaleasyRepositoriesPluginBase {
+class YmlRemote extends DrupaleasyRepositoriesPluginBase {
 
   /**
    * Gets a single repository from the .yml file.
@@ -30,7 +30,7 @@ class YamlRemote extends DrupaleasyRepositoriesPluginBase {
       $repo_info = Yaml::decode($file_content);
       $full_name = array_key_first($repo_info);
       $repo = reset($repo_info);
-      return $this->mapToCommonFormat($full_name, $repo['label'], $repo['description'], $repo['num_open_issues'], 'yaml', $uri);
+      return $this->mapToCommonFormat($full_name, $repo['label'], $repo['description'], $repo['num_open_issues'], 'yml', $uri);
     }
     return [];
   }

@@ -147,7 +147,7 @@ class AddYmlRepoTest extends BrowserTestBase {
     // Check values.
     // @todo check values on the page.
     $session->assert($node->field_machine_name->value, 'batman-repo');
-    $session->assert($node->field_source->value, 'yaml');
+    $session->assert($node->field_source->value, 'yml');
     $session->assert($node->title->value, 'The Batman repository');
     $session->assert($node->field_description->value, 'This is where Batman keeps all his crime-fighting code.');
     $session->assert($node->field_number_of_issues->value, '6');
