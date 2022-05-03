@@ -109,16 +109,16 @@ trait RepositoryContentTypeTrait {
    * @return array
    *   The sample repository info.
    */
-  protected function getBatmanRepo() {
-    // The order of elements of this array matters when calculating the hash.
-    $repo['batman-repository'] = [
-      'label' => 'The Batman repository',
-      'description' => 'This is where Batman keeps all his crime-fighting code.',
-      'num_open_issues' => 6,
-      'source' => 'yaml',
-      'url' => 'https://moddevtests.ddev.site/batman-repo.yml',
-    ];
-    return $repo;
-  }
+//   protected function getBatmanRepo() {
+//     // The order of elements of this array matters when calculating the hash.
+//     $repo['batman-repository'] = [
+//       'label' => 'The Batman repository',
+//       'description' => 'This is where Batman keeps all his crime-fighting code.',
+//       'num_open_issues' => 6,
+//       'source' => 'yaml',
+//       'url' => 'https://moddevtests.ddev.site/batman-repo.yml',
+//     ];
+//     return $repo;
+//   }
 
 }

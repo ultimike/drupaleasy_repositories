@@ -39,16 +39,16 @@ class AddYmlRepoTest extends BrowserTestBase {
     parent::setUp();
 
     $config = $this->config('drupaleasy_repositories.settings');
-    $config->set('repositories', ['yaml_remote' => 'yaml_remote']);
+    $config->set('repositories', ['yml_remote' => 'yml_remote']);
     $config->save();
-
-    // Start the browsing session.
-    $session = $this->assertSession();
 
     // Create and login as a Drupal admin user with permission to access
     // the DrupalEasy Repositories Settings page.
     $admin_user = $this->drupalCreateUser(['drupaleasy repositories configure']);
     $this->drupalLogin($admin_user);
+
+    // Start the browsing session.
+    $session = $this->assertSession();
 
     // Navigate to the DrupalEasy Repositories Settings page and confirm we
     // can reach it.
@@ -56,34 +56,33 @@ class AddYmlRepoTest extends BrowserTestBase {
     // Try this with a 500 status code to see it fail.
     $session->statusCodeEquals(200);
 
-    // Select the "Remote Yaml file" checkbox and submit the form.
+    // Select the "Remote Yml file" checkbox and submit the form.
     // @todo why doesn't this save to config?
     $edit = [
-      'edit-repositories-yaml-remote' => 'yaml_remote',
+      'edit-repositories-yml-remote' => 'yml_remote',
     ];
     $this->submitForm($edit, 'Save configuration');
     $session->statusCodeEquals(200);
     $session->responseContains('The configuration options have been saved.');
-    $session->checkboxChecked('edit-repositories-yaml-remote');
+    $session->checkboxChecked('edit-repositories-yml-remote');
     $session->checkboxNotChecked('edit-repositories-github');
 
-    // $this->createRepositoryContentType();
-
-    // // Create multivalued Repositories URL field for user profiles.
-    // // @todo Document that this requires the link module as part of this test.
-    // FieldStorageConfig::create([
-    //   'field_name' => 'field_repository_url',
-    //   'type' => 'link',
-    //   'entity_type' => 'user',
-    //   // @todo Document that cardinality = -1 is unlimited (multivalued).
-    //   'cardinality' => -1,
-    // ])->save();
-    // FieldConfig::create([
-    //   'field_name' => 'field_repository_url',
-    //   'entity_type' => 'user',
-    //   'bundle' => 'user',
-    //   'label' => 'Repository URL',
-    // ])->save();
+    // We do not need this stuff anymore now that we have config/install.
+//     $this->createRepositoryContentType();
+//
+//     // Create multivalued Repositories URL field for user profiles.
+//     FieldStorageConfig::create([
+//       'field_name' => 'field_repository_url',
+//       'type' => 'link',
+//       'entity_type' => 'user',
+//       'cardinality' => -1,
+//     ])->save();
+//     FieldConfig::create([
+//       'field_name' => 'field_repository_url',
+//       'entity_type' => 'user',
+//       'bundle' => 'user',
+//       'label' => 'Repository URL',
+//     ])->save();
     /** @var \Drupal\Core\Entity\EntityDisplayRepository $entity_display_repository  */
     $entity_display_repository = \Drupal::service('entity_display.repository');
     $entity_display_repository->getFormDisplay('user', 'user', 'default')
