@@ -108,6 +108,7 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
    *
    * @covers ::isUnique
    * @dataProvider provideTestIsUnique
+   * @test
    */
   public function testIsUnique($expected, $repo) {
     // Use reflection to make isUnique() public.

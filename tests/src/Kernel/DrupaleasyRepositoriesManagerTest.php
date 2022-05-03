@@ -35,6 +35,8 @@ class DrupaleasyRepositoriesManagerTest extends KernelTestBase {
 
   /**
    * Test creating an instance of the .yml Remote plugin.
+   *
+   * @test
    */
   public function testYmlRemoteInstance() {
     $example_instance = $this->manager->createInstance('yml_remote');
@@ -47,6 +49,8 @@ class DrupaleasyRepositoriesManagerTest extends KernelTestBase {
 
   /**
    * Test creating an instance of the Github plugin.
+   *
+   * @test
    */
   public function testGithubInstance() {
     $example_instance = $this->manager->createInstance('github');

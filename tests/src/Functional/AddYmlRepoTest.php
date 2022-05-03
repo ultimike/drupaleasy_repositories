@@ -3,8 +3,9 @@
 namespace Drupal\Tests\drupaleasy_repositories\Functional;
 
 use Drupal\Tests\BrowserTestBase;
-use Drupal\field\Entity\FieldConfig;
-use Drupal\field\Entity\FieldStorageConfig;
+// We do not need this stuff anymore now that we have config/install.
+//use Drupal\field\Entity\FieldConfig;
+//use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\Tests\drupaleasy_repositories\Traits\RepositoryContentTypeTrait;
 
 /**
@@ -47,26 +48,6 @@ class AddYmlRepoTest extends BrowserTestBase {
     $admin_user = $this->drupalCreateUser(['drupaleasy repositories configure']);
     $this->drupalLogin($admin_user);
 
-    // Start the browsing session.
-    $session = $this->assertSession();
-
-    // Navigate to the DrupalEasy Repositories Settings page and confirm we
-    // can reach it.
-    $this->drupalGet('/admin/config/services/repositories');
-    // Try this with a 500 status code to see it fail.
-    $session->statusCodeEquals(200);
-
-    // Select the "Remote Yml file" checkbox and submit the form.
-    // @todo why doesn't this save to config?
-    $edit = [
-      'edit-repositories-yml-remote' => 'yml_remote',
-    ];
-    $this->submitForm($edit, 'Save configuration');
-    $session->statusCodeEquals(200);
-    $session->responseContains('The configuration options have been saved.');
-    $session->checkboxChecked('edit-repositories-yml-remote');
-    $session->checkboxNotChecked('edit-repositories-github');
-
     // We do not need this stuff anymore now that we have config/install.
 //     $this->createRepositoryContentType();
 //
@@ -88,6 +69,36 @@ class AddYmlRepoTest extends BrowserTestBase {
     $entity_display_repository->getFormDisplay('user', 'user', 'default')
       ->setComponent('field_repository_url', ['type' => 'link_default'])
       ->save();
+  }
+
+  /**
+   * Test that the settings page can be reached and works as expected.
+   *
+   * This tests that an admin user can access the settings page, select a
+   * plugin to enable, and submit the page successfully.
+   *
+   * @test
+   */
+  public function testSettingsPage() {
+    // Start the browsing session.
+    $session = $this->assertSession();
+
+    // Navigate to the DrupalEasy Repositories Settings page and confirm we
+    // can reach it.
+    $this->drupalGet('/admin/config/services/repositories');
+    // Try this with a 500 status code to see it fail.
+    $session->statusCodeEquals(200);
+
+    // Select the "Remote Yml file" checkbox and submit the form.
+    // @todo why doesn't this save to config?
+    $edit = [
+      'edit-repositories-yml-remote' => 'yml_remote',
+    ];
+    $this->submitForm($edit, 'Save configuration');
+    $session->statusCodeEquals(200);
+    $session->responseContains('The configuration options have been saved.');
+    $session->checkboxChecked('edit-repositories-yml-remote');
+    $session->checkboxNotChecked('edit-repositories-github');
   }
 
   /**

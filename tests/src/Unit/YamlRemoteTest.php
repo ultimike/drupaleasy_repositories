@@ -104,6 +104,7 @@ class YmlRemoteTest extends UnitTestCase {
    * Test that a repo can be read properly.
    *
    * @covers ::getRepo
+   * @test
    */
   public function testGetRepo() {
     $repo = $this->ymlRemote->getRepo(__DIR__ . '/../../assets/batman-repo.yml');
