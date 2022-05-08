@@ -108,7 +108,7 @@ class AddYmlRepoTest extends BrowserTestBase {
    * that a repository node is successfully created upon saving the profile.
    */
   public function testAddYmlRepo() {
-    // Create and login as a Drupal admin user with permission to access
+    // Create and login as a Drupal user with permission to access
     // the DrupalEasy Repositories Settings page.
     $user = $this->drupalCreateUser(['access content']);
     $this->drupalLogin($user);
@@ -135,8 +135,8 @@ class AddYmlRepoTest extends BrowserTestBase {
     $this->submitForm($edit, 'Save');
     $session->statusCodeEquals(200);
     $session->responseContains('The changes have been saved.');
-    // @todo Document that we can't check for the followimg message unless we
-    // also enable the drupaleasy_notify module (which we don't want to do).
+    // We can't check for the following message unless we also have the future
+    // drupaleasy_notify module enabled.
     // $session->responseContains('The repo named <em class="placeholder">The Batman repository</em> has been created');
 
     // Find the new repository node.
@@ -146,8 +146,6 @@ class AddYmlRepoTest extends BrowserTestBase {
     $results = $query->execute();
     $session->assert(count($results) == 1, 'One repository node was found.');
 
-    // @todo Document the fact that the next 6 lines could be written as:
-    // $node = \Drupal::entityTypeManager()->->getStorage('node')->load(reset($results));
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::entityTypeManager();
     /** @var \Drupal\Core\Entity\EntityStorageInterface $storage */
@@ -156,7 +154,6 @@ class AddYmlRepoTest extends BrowserTestBase {
     $node = $node_storage->load(reset($results));
 
     // Check values.
-    // @todo check values on the page.
     $session->assert($node->field_machine_name->value, 'batman-repo');
     $session->assert($node->field_source->value, 'yml');
     $session->assert($node->title->value, 'The Batman repository');

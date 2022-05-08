@@ -88,7 +88,6 @@ trait RepositoryContentTypeTrait {
     ])->save();
 
     // Create URL field.
-    // @todo Document that this requires the link module as part of this test.
     FieldStorageConfig::create([
       'field_name' => 'field_url',
       'type' => 'link',
