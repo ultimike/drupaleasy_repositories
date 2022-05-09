@@ -13,13 +13,14 @@
  * @param array|\ArrayAccess $context
  *   Batch API context.
  */
-function drupaleasy_update_repositories_batch_operation($uid, &$context) {
+function drupaleasy_update_repositories_batch_operation(int $uid, &$context) {
   if (empty($context['results'])) {
     $context['results'] = [];
     $context['results']['num'] = 0;
   }
+  /** @var Drupal\drupaleasy_repositories\Batch $drupaleasy_repositories_batch */
   $drupaleasy_repositories_batch = \Drupal::service('drupaleasy_repositories.batch');
-  return $drupaleasy_repositories_batch->updateRepositoriesBatch($uid, $context);
+  $drupaleasy_repositories_batch->updateRepositoriesBatch($uid, $context);
 }
 
 /**
@@ -32,7 +33,7 @@ function drupaleasy_update_repositories_batch_operation($uid, &$context) {
  * @param array $operations
  *   Array of operations called.
  */
-function drupaleasy_update_all_repositories_finished(bool $success, array $results, array $operations) {
+function drupaleasy_update_all_repositories_finished(array $success, array $results, array $operations) {
   if ($success) {
     // Note: the $results array isn't properly populated when run via Drush.
     // See: https://github.com/drush-ops/drush/issues/5009

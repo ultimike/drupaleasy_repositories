@@ -89,7 +89,7 @@ class Batch {
    *   an object as sometimes it is an array (when calling from a form) and
    *   sometimes it is an object (when calling from Drush).
    */
-  public function updateRepositoriesBatch($uid, &$context) {
+  public function updateRepositoriesBatch(int $uid, &$context) {
     /** @var \Drupal\Core\Entity\EntityStorageInterface $user_storage */
     $user_storage = $this->entityTypeManager->getStorage('user');
     $account = $user_storage->load($uid);
