@@ -14,8 +14,9 @@
  *   Batch API context.
  */
 function drupaleasy_update_repositories_batch_operation(int $uid, &$context) {
-  if (empty($context['results'])) {
-    $context['results'] = [];
+  // @todo Document using 'results' instead of 'sandbox' so it is available in
+  // drupaleasy_update_all_repositories_finished().
+  if (empty($context['results']['num'])) {
     $context['results']['num'] = 0;
   }
   /** @var Drupal\drupaleasy_repositories\Batch $drupaleasy_repositories_batch */
@@ -33,10 +34,8 @@ function drupaleasy_update_repositories_batch_operation(int $uid, &$context) {
  * @param array $operations
  *   Array of operations called.
  */
-function drupaleasy_update_all_repositories_finished(array $success, array $results, array $operations) {
+function drupaleasy_update_all_repositories_finished(bool $success, array $results, array $operations) {
   if ($success) {
-    // Note: the $results array isn't properly populated when run via Drush.
-    // See: https://github.com/drush-ops/drush/issues/5009
     if (isset($results['num'])) {
       $message = t('Updated repository nodes for @num users.', ['@num' => $results['num']]);
     }

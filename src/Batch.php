@@ -72,9 +72,6 @@ class Batch {
     ];
     batch_set($batch);
     if ($drush) {
-      // For some reason, running via drush leaves the $results array in
-      // drupaleasy_update_all_repositories_finished() empty. See
-      // https://github.com/drush-ops/drush/issues/5009
       drush_backend_batch_process();
     }
   }
