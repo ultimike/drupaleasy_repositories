@@ -25,7 +25,7 @@ class YmlRemote extends DrupaleasyRepositoriesPluginBase {
    * @return array
    *   The repositories.
    */
-  public function getRepo(string $uri) {
+  public function getRepo(string $uri): array {
     if ($file_content = file_get_contents($uri)) {
       $repo_info = Yaml::decode($file_content);
       $full_name = array_key_first($repo_info);
@@ -38,7 +38,7 @@ class YmlRemote extends DrupaleasyRepositoriesPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function validate($uri) {
+  public function validate($uri):bool {
     $pattern = '/^(https?:\/\/)[a-zA-Z0-9_\-\/\.]+\.yml/';
 
     if (preg_match($pattern, $uri) === 1) {
@@ -50,7 +50,7 @@ class YmlRemote extends DrupaleasyRepositoriesPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function validateHelpText() {
+  public function validateHelpText(): string {
     return 'https://anything.anything/anything/anything.yml (or "http")';
   }
 

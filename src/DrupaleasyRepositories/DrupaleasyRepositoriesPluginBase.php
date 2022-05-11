@@ -96,19 +96,19 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
    * @return bool
    *   True if validates.
    */
-  public function validate(string $uri) {
+  public function validate(string $uri): bool {
     return FALSE;
   }
 
-  /**
-   * Help text to display for URI.
-   *
-   * @return string
-   *   The help text to display.
-   */
-  public function validateHelpText() {
-    return '';
-  }
+  // /**
+  //  * Help text to display for URI.
+  //  *
+  //  * @return string
+  //  *   The help text to display.
+  //  */
+  // public function validateHelpText() {
+  //   return '';
+  // }
 
   /**
    * Build array of a single repository.

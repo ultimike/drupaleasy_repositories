@@ -13,7 +13,7 @@ interface DrupaleasyRepositoriesInterface {
    * @return string
    *   The translated title.
    */
-  public function label();
+  public function label(): string;
 
   /**
    * URL validator.
@@ -24,7 +24,7 @@ interface DrupaleasyRepositoriesInterface {
    * @return bool
    *   Returns TRUE if the validation passes.
    */
-  public function validate(string $uri);
+  public function validate(string $uri): bool;
 
   /**
    * Returns help text for the plugin's URL pattern required.
@@ -32,7 +32,7 @@ interface DrupaleasyRepositoriesInterface {
    * @return string
    *   The help text string.
    */
-  public function validateHelpText();
+  public function validateHelpText(): string;
 
   /**
    * Queries the repository source for info about a repository.
@@ -43,6 +43,6 @@ interface DrupaleasyRepositoriesInterface {
    * @return array
    *   The name and description of each repository.
    */
-  public function getRepo(string $uri);
+  public function getRepo(string $uri): array;
 
 }
