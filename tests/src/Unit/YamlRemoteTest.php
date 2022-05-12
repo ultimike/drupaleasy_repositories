@@ -110,7 +110,7 @@ class YmlRemoteTest extends UnitTestCase {
     $repo = $this->ymlRemote->getRepo(__DIR__ . '/../../assets/batman-repo.yml');
     // getRepo() returns an array of repositories, in this case only one.
     $repo = reset($repo);
-    self::assertEquals('yml', $repo['source'], 'Source does not match.');
+    self::assertEquals('yml_remote', $repo['source'], 'Source does not match.');
   }
 
 }

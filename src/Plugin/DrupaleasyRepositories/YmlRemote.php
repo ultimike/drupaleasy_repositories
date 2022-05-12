@@ -11,26 +11,20 @@ use Drupal\Component\Serialization\Yaml;
  * @DrupaleasyRepositories(
  *   id = "yml_remote",
  *   label = @Translation("Remote .yml file"),
- *   description = @Translation("Remote .yml file that includes repository metadata")
+ *   description = @Translation("Remote .yml file that includes repository metadata.")
  * )
  */
 class YmlRemote extends DrupaleasyRepositoriesPluginBase {
 
   /**
-   * Gets a single repository from the .yml file.
-   *
-   * @param string $uri
-   *   The URI of the repository to get.
-   *
-   * @return array
-   *   The repositories.
+   * {@inheritdoc}
    */
   public function getRepo(string $uri): array {
     if ($file_content = file_get_contents($uri)) {
       $repo_info = Yaml::decode($file_content);
       $full_name = array_key_first($repo_info);
       $repo = reset($repo_info);
-      return $this->mapToCommonFormat($full_name, $repo['label'], $repo['description'], $repo['num_open_issues'], 'yml', $uri);
+      return $this->mapToCommonFormat($full_name, $repo['label'], $repo['description'], $repo['num_open_issues'], 'yml_remote', $uri);
     }
     return [];
   }
@@ -38,7 +32,7 @@ class YmlRemote extends DrupaleasyRepositoriesPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function validate($uri):bool {
+  public function validate($uri): bool {
     $pattern = '/^(https?:\/\/)[a-zA-Z0-9_\-\/\.]+\.yml/';
 
     if (preg_match($pattern, $uri) === 1) {

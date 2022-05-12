@@ -22,7 +22,7 @@ class Github extends DrupaleasyRepositoriesPluginBase {
   /**
    * Authenticate with Github.
    */
-  protected function authenticate() {
+  protected function authenticate(): bool {
     $this->client = Client::createWithHttpClient(new HttplugClient());
     $github_key = $this->keyRepository->getKey('github')->getKeyValues();
     try {
@@ -49,7 +49,7 @@ class Github extends DrupaleasyRepositoriesPluginBase {
    * @return array
    *   The repositories.
    */
-  public function getRepo(string $uri) {
+  public function getRepo(string $uri): array {
     // Parse the URI.
     $all_parts = parse_url($uri);
     $parts = explode('/', $all_parts['path']);
@@ -77,7 +77,7 @@ class Github extends DrupaleasyRepositoriesPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function validate($uri) {
+  public function validate($uri): bool {
     $pattern = '/^(https:\/\/)github.com\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+/';
 
     if (preg_match($pattern, $uri) == 1) {
@@ -89,7 +89,7 @@ class Github extends DrupaleasyRepositoriesPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function validateHelpText() {
+  public function validateHelpText(): string {
     return 'https://github.com/vendor/name';
   }
 

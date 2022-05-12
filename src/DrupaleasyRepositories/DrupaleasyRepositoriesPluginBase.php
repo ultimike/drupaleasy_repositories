@@ -82,19 +82,13 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
    * @return string
    *   The plugin label.
    */
-  public function label() {
+  public function label(): string {
     // Cast the label to a string since it is a TranslatableMarkup object.
     return (string) $this->pluginDefinition['label'];
   }
 
   /**
-   * Validate a repository URI.
-   *
-   * @param string $uri
-   *   The URI to validate.
-   *
-   * @return bool
-   *   True if validates.
+   * {@inheritdoc}
    */
   public function validate(string $uri): bool {
     return FALSE;
