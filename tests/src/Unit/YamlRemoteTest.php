@@ -19,17 +19,18 @@ class YmlRemoteTest extends UnitTestCase {
    */
   protected $ymlRemote;
 
+  // @var \Drupal\Core\Messenger\MessengerInterface|\PHPUnit\Framework\MockObject\MockObject
   /**
    * Drupal's messenger service.
    *
-   * @var \Drupal\Core\Messenger\MessengerInterface
+   * @var \PHPUnit\Framework\MockObject\MockObject
    */
   protected $messenger;
 
   /**
    * The Key repository service.
    *
-   * @var \Drupal\key\KeyRepositoryInterface
+   * @var \Drupal\key\KeyRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $keyRepository;
 
@@ -56,6 +57,7 @@ class YmlRemoteTest extends UnitTestCase {
    * Test that the help text returns as expected.
    *
    * @covers ::validateHelpText
+   * @test
    */
   public function testValidateHelpText() {
     self::assertEquals('https://anything.anything/anything/anything.yml (or "http")', $this->ymlRemote->validateHelpText(), 'Help text does not match.');
@@ -67,6 +69,7 @@ class YmlRemoteTest extends UnitTestCase {
    * @dataProvider validateProvider
    *
    * @covers ::validate
+   * @test
    */
   public function testValidate($testString, $expected) {
     self::assertEquals($expected, $this->ymlRemote->validate($testString));
@@ -108,9 +111,9 @@ class YmlRemoteTest extends UnitTestCase {
    */
   public function testGetRepo() {
     $repo = $this->ymlRemote->getRepo(__DIR__ . '/../../assets/batman-repo.yml');
-    // getRepo() returns an array of repositories, in this case only one.
     $repo = reset($repo);
     self::assertEquals('yml_remote', $repo['source'], 'Source does not match.');
+    self::assertEquals('This is where Batman keeps all his crime-fighting code.', $repo['description'], 'Description does not match.');
   }
 
 }
