@@ -19,14 +19,6 @@ class YmlRemoteTest extends UnitTestCase {
    */
   protected $ymlRemote;
 
-  // @var \Drupal\Core\Messenger\MessengerInterface|\PHPUnit\Framework\MockObject\MockObject
-  /**
-   * Drupal's messenger service.
-   *
-   * @var \PHPUnit\Framework\MockObject\MockObject
-   */
-  protected $messenger;
-
   /**
    * The Key repository service.
    *
@@ -40,17 +32,12 @@ class YmlRemoteTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    // Mock the messenger object.
-    $this->messenger = $this->getMockBuilder('\Drupal\Core\Messenger\MessengerInterface')
-      ->disableOriginalConstructor()
-      ->getMock();
-
     // Mock the key.repository object.
     $this->keyRepository = $this->getMockBuilder('\Drupal\key\KeyRepositoryInterface')
       ->disableOriginalConstructor()
       ->getMock();
 
-    $this->ymlRemote = new YmlRemote([], '', [], $this->messenger, $this->keyRepository);
+    $this->ymlRemote = new YmlRemote([], '', [], $this->keyRepository);
   }
 
   /**

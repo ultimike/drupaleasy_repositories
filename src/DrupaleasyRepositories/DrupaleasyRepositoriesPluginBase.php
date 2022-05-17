@@ -5,7 +5,6 @@ namespace Drupal\drupaleasy_repositories\DrupaleasyRepositories;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\key\KeyRepositoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
@@ -24,13 +23,6 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
   protected $client;
 
   /**
-   * Drupal's messenger service.
-   *
-   * @var \Drupal\Core\Messenger\MessengerInterface
-   */
-  protected $messenger;
-
-  /**
    * The Key repository service.
    *
    * @var \Drupal\key\KeyRepositoryInterface
@@ -45,7 +37,6 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('messenger'),
       $container->get('key.repository')
     );
   }
@@ -53,9 +44,8 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, MessengerInterface $messenger, KeyRepositoryInterface $key_repository) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, KeyRepositoryInterface $key_repository) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->messenger = $messenger;
     $this->keyRepository = $key_repository;
   }
 
