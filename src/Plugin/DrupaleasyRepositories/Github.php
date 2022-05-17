@@ -66,7 +66,7 @@ class Github extends DrupaleasyRepositoriesPluginBase {
       catch (\Throwable $th) {
         return [];
       }
-      return $this->mapToCommonFormat($repo['full_name'], $repo['name'], $repo['description'], $repo['open_issues_count'], 'github', $repo['html_url']);
+      return $this->mapToCommonFormat($repo['full_name'], $repo['name'], $repo['description'], $repo['open_issues_count'], $repo['html_url']);
     }
     else {
       return [];

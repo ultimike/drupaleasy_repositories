@@ -24,7 +24,7 @@ class YmlRemote extends DrupaleasyRepositoriesPluginBase {
       $repo_info = Yaml::decode($file_content);
       $full_name = array_key_first($repo_info);
       $repo = reset($repo_info);
-      return $this->mapToCommonFormat($full_name, $repo['label'], $repo['description'], $repo['num_open_issues'], 'yml_remote', $uri);
+      return $this->mapToCommonFormat($full_name, $repo['label'], $repo['description'], $repo['num_open_issues'], $uri);
     }
     return [];
   }

@@ -115,21 +115,18 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
    *   The description of the repository.
    * @param int $num_open_issues
    *   The number of open issues.
-   * @param string $source
-   *   The source of the repository.
    * @param string $url
    *   The URI of the repository.
    *
    * @return array
    *   An array containing info about a single repository.
    */
-  protected function mapToCommonFormat(string $full_name, string $label, string $description, int $num_open_issues, string $source, string $url) {
+  protected function mapToCommonFormat(string $full_name, string $label, string $description, int $num_open_issues, string $url) {
     $repo_info[$full_name] = [
       'label' => $label,
       'description' => $description,
       'num_open_issues' => $num_open_issues,
-      // This needs to be the same as the plugin ID.
-      'source' => $source,
+      'source' => $this->getPluginId(),
       'url' => $url,
     ];
     return $repo_info;
