@@ -23,21 +23,21 @@ class DrupaleasyRepositoriesService {
    *
    * @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager
    */
-  protected $pluginManagerDrupaleasyRepositories;
+  protected DrupaleasyRepositoriesPluginManager $pluginManagerDrupaleasyRepositories;
 
   /**
    * The config.factory service.
    *
    * @var \Drupal\Core\Config\ConfigFactory
    */
-  protected $configFactory;
+  protected ConfigFactory $configFactory;
 
   /**
    * The Entity type manager service.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected EntityTypeManagerInterface $entityManager;
 
   /**
    * The dry-run parameter.
@@ -46,14 +46,14 @@ class DrupaleasyRepositoriesService {
    *
    * @var bool
    */
-  protected $dryRun;
+  protected bool $dryRun = FALSE;
 
   /**
    * Drupal's event dispatcher service.
    *
    * @var \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher
    */
-  protected $eventDispatcher;
+  protected ContainerAwareEventDispatcher $eventDispatcher;
 
   /**
    * Constructs a DrupaleasyRepositories object.
@@ -100,7 +100,7 @@ class DrupaleasyRepositoriesService {
         foreach ($account->field_repository_url ?? [] as $url) {
           // Check if URL validates for this repository.
           if ($repository_location->validate($url->uri)) {
-            // Confirm repository exists.
+            // Confirm repository exists and get metadata.
             if ($repo_info = $repository_location->getRepo($url->uri)) {
               $repos_info += $repo_info;
             }
@@ -240,7 +240,7 @@ class DrupaleasyRepositoriesService {
       if (is_array($url)) {
         if ($uri = trim($url['uri'])) {
           $repo_info = [];
-          // Check to see if the URI if valid for any enabled plugins.
+          // Check to see if the URI is valid for any enabled plugins.
           /** @var DrupaleasyRepositoriesInterface $repository_service */
           foreach ($repository_services as $repository_service) {
             if ($repository_service->validate($uri)) {
@@ -279,7 +279,7 @@ class DrupaleasyRepositoriesService {
    * @return string
    *   The help text.
    */
-  public function getValidatorHelpText() {
+  public function getValidatorHelpText(): string {
     $repositories = [];
     $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories') ?? [];
 

@@ -10,7 +10,7 @@ use Drupal\Core\Render\Element;
 use Drupal\user\Entity\User;
 
 /**
- * Implements hoo k_user_login().
+ * Implements hook_user_login().
  */
 function drupaleasy_repositories_user_login($account) {
   /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $der */
@@ -61,9 +61,9 @@ function drupaleasy_repositories_form_user_form_alter(&$form, $form_state, $form
 }
 
 /**
- * {@inheritdoc}
+ * Custom function to populate Repository URL descriptions.
  */
-function _drupaleasy_repositories_url_help_text(&$element, &$form_state, &$form) {
+function _drupaleasy_repositories_url_help_text(&$element) {
   /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $repository_service */
   $repository_service = \Drupal::service('drupaleasy_repositories.service');
   $help_text = $repository_service->getValidatorHelpText();
