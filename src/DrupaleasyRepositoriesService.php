@@ -108,7 +108,8 @@ class DrupaleasyRepositoriesService {
         }
       }
     }
-    return $this->updateRepositoryNodes($repos_info, $account);
+    return $this->updateRepositoryNodes($repos_info, $account) &&
+      $this->deleteRepositoryNodes($repos_info, $account);
   }
 
   /**
@@ -185,13 +186,34 @@ class DrupaleasyRepositoriesService {
       }
     }
 
-    // Remove repository nodes deleted from the source.
+    return TRUE;
+  }
+
+  /**
+   * Delete repository nodes deleted from the source for a given user.
+   *
+   * @param array $repos_info
+   *   Repository info from API call.
+   * @param \Drupal\Core\Entity\EntityInterface $account
+   *   The user account whose repositories to update.
+   *
+   * @return bool
+   *   TRUE if successful.
+   */
+  protected function deleteRepositoryNodes(array $repos_info, EntityInterface $account) {
+    // Prepare the storage and query stuff.
+    /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
+    $node_storage = $this->entityManager->getStorage('node');
+
     /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
     $query = $node_storage->getQuery();
     $query->condition('type', 'repository')
       ->condition('uid', $account->id())
-      ->condition('field_machine_name', array_keys($repos_info), 'NOT IN')
       ->accessCheck(FALSE);
+    // We can't chain this above because $repos_info might be empty.
+    if ($repos_info) {
+      $query->condition('field_machine_name', array_keys($repos_info), 'NOT IN');
+    }
     $results = $query->execute();
     if ($results) {
       /** @var \Drupal\node\Entity\Node $node */
@@ -264,13 +286,8 @@ class DrupaleasyRepositoriesService {
     if ($errors) {
       return implode(' ', $errors);
     }
-    if ($repo_info) {
-      return '';
-    }
-    else {
-      // No repo was found.
-      return 'No repo was found.';
-    }
+    // No errors found.
+    return '';
   }
 
   /**
