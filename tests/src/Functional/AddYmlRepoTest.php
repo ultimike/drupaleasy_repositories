@@ -204,6 +204,10 @@ class AddYmlRepoTest extends BrowserTestBase {
     ];
     $this->submitForm($edit, 'Save');
 
+    // We can't check for the following message unless we also have the future
+    // drupaleasy_notify module enabled.
+    // $session->responseContains('The repo named The Batman repository has been deleted (/node/1). The repo node is owned by admin (1).');
+
     // Check to ensure there are zero repository nodes.
     /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
     $query = \Drupal::entityQuery('node');

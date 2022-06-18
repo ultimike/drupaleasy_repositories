@@ -243,7 +243,7 @@ class DrupaleasyRepositoriesService {
    * @return string
    *   Errors reported by plugins.
    */
-  public function validateRepositoryUrls(array $urls, int $uid) {
+  public function validateRepositoryUrls(array $urls, int $uid): string {
     $errors = [];
     $repository_services = [];
 
@@ -261,23 +261,25 @@ class DrupaleasyRepositoriesService {
     foreach ($urls as $url) {
       if (is_array($url)) {
         if ($uri = trim($url['uri'])) {
-          $repo_info = [];
+          $validated = FALSE;
           // Check to see if the URI is valid for any enabled plugins.
           /** @var DrupaleasyRepositoriesInterface $repository_service */
           foreach ($repository_services as $repository_service) {
             if ($repository_service->validate($uri)) {
+              $validated = TRUE;
               $repo_info = $repository_service->getRepo($uri);
-              if (!$repo_info) {
-                $errors[] = $this->t('The repo at the url %uri was not found.', ['%uri' => $uri]);
+              if ($repo_info) {
+                if (!$this->isUnique($repo_info, $uid)) {
+                  $errors[] = $this->t('The repository at %uri has been added by another user.', ['%uri' => $uri]);
+                }
+              }
+              else {
+                $errors[] = $this->t('The repository at the url %uri was not found.', ['%uri' => $uri]);
               }
             }
           }
-
-          // Check to see if repository was previously added by another user.
-          if ($repo_info) {
-            if (!$this->isUnique($repo_info, $uid)) {
-              $errors[] = $this->t('The repository at %uri has been added by another user.', ['%uri' => $uri]);
-            }
+          if (!$validated) {
+            $errors[] = $this->t('The repository url %uri is not valid.', ['%uri' => $uri]);
           }
         }
       }
@@ -331,7 +333,7 @@ class DrupaleasyRepositoriesService {
    * @return bool
    *   Return true if the repository is unique.
    */
-  protected function isUnique(array $repo_info, int $uid) {
+  protected function isUnique(array $repo_info, int $uid): bool {
     /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
     $node_storage = $this->entityManager->getStorage('node');
 

@@ -24,6 +24,13 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
   protected $drupaleasyRepositoriesService;
 
   /**
+   * The module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandler
+   */
+  protected $moduleHandler;
+
+  /**
    * {@inheritdoc}
    */
   protected static $modules = [
@@ -52,6 +59,9 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
     $this->drupaleasyRepositoriesService = $this->container->get('drupaleasy_repositories.service');
+
+    /** @var \Drupal\Core\Extension\ModuleHandler $moduleHandler */
+    $this->moduleHandler = $this->container->get('module_handler');
 
     // Enable the .yml repository plugin.
     $config = $this->config('drupaleasy_repositories.settings');
@@ -120,6 +130,53 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
       [$repo, 999]
     );
     $this->assertEquals($expected, $return);
+  }
+
+  /**
+   * Data provider for testValidateRepositoryUrls().
+   */
+  public function provideValidateRepositoryUrls() {
+    // This is run before setup() and other things so $this->container
+    // isn't available here!
+    return [
+      ['', [['uri' => '/tests/assets/batman-repo.yml']]],
+      ['is not valid', [['uri' => '/tests/assets/batman-repo.ym']]],
+    ];
+  }
+
+  /**
+   * Test the ability for the service to ensure repositories are valid.
+   *
+   * ...
+   *
+   * @covers ::validateRepositoryUrls
+   * @dataProvider provideValidateRepositoryUrls
+   * @test
+   */
+  public function testValidateRepositoryUrls($expected, $urls) {
+    // Get the full path to the test .yml file.
+    /** @var \Drupal\Core\Extension\Extension $module */
+    $module = $this->moduleHandler->getModule('drupaleasy_repositories');
+    $module_full_path = \Drupal::request()->getUri() . $module->getPath();
+
+    foreach ($urls as $key => $url) {
+      if (isset($url['uri'])) {
+        $urls[$key]['uri'] = $module_full_path . $url['uri'];
+      }
+    }
+
+    // Use reflection to make validateRepositoryUrls() public.
+    $reflection_is_unique = new \ReflectionMethod($this->drupaleasyRepositoriesService, 'validateRepositoryUrls');
+    $reflection_is_unique->setAccessible(TRUE);
+    $return = $reflection_is_unique->invokeArgs(
+      $this->drupaleasyRepositoriesService,
+      // Use $uid = 999 to ensure it is different from $this->adminUser.
+      [$urls, 999]
+    );
+    // Only check assertion if no error is expected nor returned.
+    if (($expected != '') || ($return != $expected)) {
+      $this->assertTrue((bool) mb_stristr($return, $expected));
+    }
   }
 
 }
