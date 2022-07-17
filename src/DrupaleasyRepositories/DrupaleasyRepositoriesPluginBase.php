@@ -7,6 +7,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\key\KeyRepositoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Github\Client;
 
 /**
  * Base class for drupaleasy_repositories plugins.
@@ -18,9 +19,9 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
   /**
    * The repository client used to make API calls.
    *
-   * @var object
+   * @var \Github\Client
    */
-  protected $client;
+  protected Client $client;
 
   /**
    * The Key repository service.
@@ -47,23 +48,6 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
   public function __construct(array $configuration, $plugin_id, $plugin_definition, KeyRepositoryInterface $key_repository) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->keyRepository = $key_repository;
-  }
-
-  /**
-   * Sets the $client.
-   *
-   * @param object $client
-   *   The client object.
-   */
-  public function setClient(object $client) {
-    $this->client = $client;
-  }
-
-  /**
-   * Gets the $client.
-   */
-  public function getClient() {
-    return($this->client);
   }
 
   /**

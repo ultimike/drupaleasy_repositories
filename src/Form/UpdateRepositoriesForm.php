@@ -14,7 +14,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 final class UpdateRepositoriesForm extends FormBase {
 
-
   /**
    * The DrupalEasy repositories service.
    *
