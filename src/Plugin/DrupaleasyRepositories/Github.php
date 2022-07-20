@@ -29,11 +29,19 @@ class Github extends DrupaleasyRepositoriesPluginBase {
       // The authenticate() method does not return TRUE/FALSE, only an error if
       // unsuccessful.
       $this->client->authenticate($github_key['username'], $github_key['personal_access_token'], AuthMethod::CLIENT_ID);
+      // Uncomment the next line to test authentication.
+      //$this->client->currentUser()->emails()->allPublic();
     }
     catch (RuntimeException $th) {
-      // $this->messenger->addMessage($this->t('Github error: @error', [
-      //   '@error' => $th->getMessage(),
-      // ]));
+      $this->messenger->addMessage($this->t('Github error: @error', [
+        '@error' => $th->getMessage(),
+      ]));
+      return FALSE;
+    }
+    catch (\Throwable $th) {
+      $this->messenger->addMessage($this->t('Github error: @error', [
+        '@error' => $th->getMessage(),
+      ]));
       return FALSE;
     }
     return TRUE;
@@ -57,9 +65,15 @@ class Github extends DrupaleasyRepositoriesPluginBase {
         $repo = $this->client->api('repo')->show($parts[1], $parts[2]);
       }
       catch (RuntimeException $th) {
-        // $this->messenger->addMessage($this->t('Github error: @error', [
-        //   '@error' => $th->getMessage(),
-        // ]));
+        $this->messenger->addMessage($this->t('Github error: @error', [
+          '@error' => $th->getMessage(),
+        ]));
+        return [];
+      }
+      catch (\Throwable $th) {
+        $this->messenger->addMessage($this->t('Github error: @error', [
+          '@error' => $th->getMessage(),
+        ]));
         return [];
       }
       return $this->mapToCommonFormat($repo['full_name'], $repo['name'], $repo['description'], $repo['open_issues_count'], $repo['html_url']);
