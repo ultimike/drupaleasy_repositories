@@ -7,7 +7,6 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\key\KeyRepositoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Github\Client;
 use Drupal\Core\Messenger\MessengerInterface;
 
 /**
@@ -20,9 +19,9 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
   /**
    * The repository client used to make API calls.
    *
-   * @var \Github\Client
+   * @var object
    */
-  protected Client $client;
+  protected object $client;
 
   /**
    * The messenger service.
