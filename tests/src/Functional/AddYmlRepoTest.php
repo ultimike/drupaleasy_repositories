@@ -44,7 +44,9 @@ class AddYmlRepoTest extends BrowserTestBase {
     $config->save();
 
     // Create and login as a Drupal admin user with permission to access
-    // the DrupalEasy Repositories Settings page.
+    // the DrupalEasy Repositories Settings page. This is UID=2 because UID=1
+    // is created by FunctionalTestSetupTrait. The root user can be accessed
+    // with $this->rootUser.
     $admin_user = $this->drupalCreateUser(['drupaleasy repositories configure']);
     $this->drupalLogin($admin_user);
 
