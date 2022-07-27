@@ -81,7 +81,7 @@ class AddYmlRepoTest extends BrowserTestBase {
    *
    * @test
    */
-  public function testSettingsPage() {
+  public function testSettingsPage(): void {
     // Start the browsing session.
     $session = $this->assertSession();
 
@@ -111,7 +111,7 @@ class AddYmlRepoTest extends BrowserTestBase {
    *
    * @test
    */
-  public function testAddYmlRepo() {
+  public function testAddYmlRepo(): void {
     // Create and login as a Drupal user with permission to access
     // the DrupalEasy Repositories Settings page.
     $user = $this->drupalCreateUser(['access content']);
@@ -175,7 +175,7 @@ class AddYmlRepoTest extends BrowserTestBase {
    *
    * @test
    */
-  public function testRemoveYmlRepo() {
+  public function testRemoveYmlRepo(): void {
     // Create and login as a Drupal user with permission to access
     // the DrupalEasy Repositories Settings page.
     $user = $this->drupalCreateUser(['access content']);
