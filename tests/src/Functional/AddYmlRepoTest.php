@@ -92,7 +92,6 @@ class AddYmlRepoTest extends BrowserTestBase {
     $session->statusCodeEquals(200);
 
     // Select the "Remote Yml file" checkbox and submit the form.
-    // @todo why doesn't this save to config?
     $edit = [
       'edit-repositories-yml-remote' => 'yml_remote',
     ];
