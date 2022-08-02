@@ -58,7 +58,7 @@ class YmlRemoteTest extends UnitTestCase {
    * @covers ::validateHelpText
    * @test
    */
-  public function testValidateHelpText() {
+  public function testValidateHelpText(): void {
     self::assertEquals('https://anything.anything/anything/anything.yml (or "http")', $this->ymlRemote->validateHelpText(), 'Help text does not match.');
   }
 
@@ -70,14 +70,14 @@ class YmlRemoteTest extends UnitTestCase {
    * @covers ::validate
    * @test
    */
-  public function testValidate($testString, $expected) {
+  public function testValidate($testString, $expected): void {
     self::assertEquals($expected, $this->ymlRemote->validate($testString));
   }
 
   /**
    * Data provider for testValidate().
    */
-  public function validateProvider() {
+  public function validateProvider(): array {
     return [
       [
         'A test string',
@@ -108,7 +108,7 @@ class YmlRemoteTest extends UnitTestCase {
    * @covers ::getRepo
    * @test
    */
-  public function testGetRepo() {
+  public function testGetRepo(): void {
     $repo = $this->ymlRemote->getRepo(__DIR__ . '/../../assets/batman-repo.yml');
     $repo = reset($repo);
     self::assertEquals('The Batman repository', $repo['label'], 'Label does not match.');
