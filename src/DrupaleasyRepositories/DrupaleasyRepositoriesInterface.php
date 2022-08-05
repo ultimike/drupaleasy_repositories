@@ -41,7 +41,7 @@ interface DrupaleasyRepositoriesInterface {
    *   The URI of the repo.
    *
    * @return array
-   *   The name and description of each repository.
+   *   The metadata of each repository.
    */
   public function getRepo(string $uri): array;
 
