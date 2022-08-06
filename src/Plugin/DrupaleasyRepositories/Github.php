@@ -13,7 +13,7 @@ use Symfony\Component\HttpClient\HttplugClient;
  *
  * @DrupaleasyRepositories(
  *   id = "github",
- *   label = @Translation("Github"),
+ *   label = @Translation("GitHub"),
  *   description = @Translation("Github.com")
  * )
  */
