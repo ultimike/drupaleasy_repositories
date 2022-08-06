@@ -108,14 +108,14 @@ trait RepositoryContentTypeTrait {
    * @return array
    *   The sample repository info.
    */
-  protected function getBatmanRepo() {
+  protected function getAquamanRepo() {
     // The order of elements of this array matters when calculating the hash.
-    $repo['batman-repository'] = [
-      'label' => 'The Batman repository',
-      'description' => 'This is where Batman keeps all his crime-fighting code.',
+    $repo['aquaman-repository'] = [
+      'label' => 'The Aquaman repository',
+      'description' => 'This is where Aquaman keeps all his crime-fighting code.',
       'num_open_issues' => 6,
       'source' => 'yml',
-      'url' => 'https://moddevtests.ddev.site/batman-repo.yml',
+      'url' => 'http://example.com/aquaman-repo.yml',
     ];
     return $repo;
   }

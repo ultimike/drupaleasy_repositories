@@ -6,9 +6,11 @@ use Drupal\KernelTests\KernelTestBase;
 use Drupal\user\Entity\User;
 use Drupal\node\Entity\Node;
 use Drupal\Tests\drupaleasy_repositories\Traits\RepositoryContentTypeTrait;
+use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService;
+use Drupal\Core\Extension\ModuleHandler;
 
 /**
- * Test description.
+ * Tests methods of the main DrupalEasy Repositories service.
  *
  * @group drupaleasy_repositories
  */
@@ -17,18 +19,18 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
   use RepositoryContentTypeTrait;
 
   /**
-   * The test service.
+   * The drupaleasy_repositories service.
    *
    * @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService
    */
-  protected $drupaleasyRepositoriesService;
+  protected DrupaleasyRepositoriesService $drupaleasyRepositoriesService;
 
   /**
    * The module handler service.
    *
    * @var \Drupal\Core\Extension\ModuleHandler
    */
-  protected $moduleHandler;
+  protected ModuleHandler $moduleHandler;
 
   /**
    * {@inheritdoc}
@@ -45,13 +47,6 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
     // For link field types.
     'link',
   ];
-
-  /**
-   * Test repository info.
-   *
-   * @var array
-   */
-  protected $testRepoInfo;
 
   /**
    * {@inheritdoc}
@@ -77,14 +72,14 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
 
     $this->createRepositoryContentType();
 
-    $batman_repo = $this->getBatmanRepo();
-    $repo = reset($batman_repo);
+    $aquaman_repo = $this->getAquamanRepo();
+    $repo = reset($aquaman_repo);
     $node = Node::create([
       'type' => 'repository',
       'title' => $repo['label'],
-      'field_machine_name' => array_key_first($batman_repo),
+      'field_machine_name' => array_key_first($aquaman_repo),
       'field_url' => $repo['url'],
-      'field_hash' => '06b2ffbb0eece1fee308a6429c287c35',
+      'field_hash' => '06ec2efe7005ae32f624a9c2d28febd5',
       'field_number_of_issues' => $repo['num_open_issues'],
       'field_source' => $repo['source'],
       'field_description' => $repo['description'],
@@ -105,16 +100,13 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
       'url' => 'https://example.com/superman-repo.yml',
     ];
     return [
-      [FALSE, $this->getBatmanRepo()],
+      [FALSE, $this->getAquamanRepo()],
       [TRUE, $unique_repo_info],
     ];
   }
 
   /**
    * Test the ability for the service to ensure repositories are unique.
-   *
-   * This test doesn't call the DrupaleasyRepositoriesService::getRepo()
-   * method, so we can test with real URLs.
    *
    * @covers ::isUnique
    * @dataProvider provideTestIsUnique
@@ -124,12 +116,12 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
     // Use reflection to make isUnique() public.
     $reflection_is_unique = new \ReflectionMethod($this->drupaleasyRepositoriesService, 'isUnique');
     $reflection_is_unique->setAccessible(TRUE);
-    $return = $reflection_is_unique->invokeArgs(
+    $actual = $reflection_is_unique->invokeArgs(
       $this->drupaleasyRepositoriesService,
       // Use $uid = 999 to ensure it is different from $this->adminUser.
       [$repo, 999]
     );
-    $this->assertEquals($expected, $return);
+    $this->assertEquals($expected, $actual);
   }
 
   /**
@@ -146,8 +138,6 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
 
   /**
    * Test the ability for the service to ensure repositories are valid.
-   *
-   * ...
    *
    * @covers ::validateRepositoryUrls
    * @dataProvider provideValidateRepositoryUrls
@@ -168,14 +158,14 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
     // Use reflection to make validateRepositoryUrls() public.
     $reflection_is_unique = new \ReflectionMethod($this->drupaleasyRepositoriesService, 'validateRepositoryUrls');
     $reflection_is_unique->setAccessible(TRUE);
-    $return = $reflection_is_unique->invokeArgs(
+    $actual = $reflection_is_unique->invokeArgs(
       $this->drupaleasyRepositoriesService,
       // Use $uid = 999 to ensure it is different from $this->adminUser.
       [$urls, 999]
     );
     // Only check assertion if no error is expected nor returned.
-    if (($expected != '') || ($return != $expected)) {
-      $this->assertTrue((bool) mb_stristr($return, $expected));
+    if (($expected != '') || ($actual != $expected)) {
+      $this->assertTrue((bool) mb_stristr($actual, $expected));
     }
   }
 
