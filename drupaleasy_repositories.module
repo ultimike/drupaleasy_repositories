@@ -8,11 +8,12 @@
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Render\Element;
 use Drupal\user\Entity\User;
+use Drupal\user\UserInterface;
 
 /**
  * Implements hook_user_login().
  */
-function drupaleasy_repositories_user_login($account): void {
+function drupaleasy_repositories_user_login(UserInterface $account): void {
   /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $der */
   $der = \Drupal::service('drupaleasy_repositories.service');
   /** @var \Drupal\Core\Messenger\MessengerInterface $messenger */
