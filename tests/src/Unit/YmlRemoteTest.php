@@ -99,6 +99,14 @@ class YmlRemoteTest extends UnitTestCase {
         '/var/www/html/anything.yaml',
         FALSE,
       ],
+      [
+        'https://www.mysite.com/some%20directory/anything.yml',
+        TRUE,
+      ],
+      [
+        'https://www.mysite.com/some%20directory/anything.yaml',
+        TRUE,
+      ],
     ];
   }
 

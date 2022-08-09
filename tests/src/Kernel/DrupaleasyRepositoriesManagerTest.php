@@ -3,6 +3,7 @@
 namespace Drupal\Tests\drupaleasy_repositories\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager;
 
 /**
  * @coversDefaultClass \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesPluginManager
@@ -15,7 +16,7 @@ class DrupaleasyRepositoriesManagerTest extends KernelTestBase {
    *
    * @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager
    */
-  protected $manager;
+  protected DrupaleasyRepositoriesPluginManager $manager;
 
   /**
    * {@inheritdoc}
