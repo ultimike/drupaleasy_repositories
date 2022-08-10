@@ -72,7 +72,7 @@ function _drupaleasy_repositories_url_help_text(&$element): array {
     $element['uri']['#description'] = t('Valid URLs include: %help_text', ['%help_text' => $help_text]);
   }
   else {
-    $element['uri']['#description'] = t('No repositories are enabled. Contact site administrtor.');
+    $element['uri']['#description'] = t('No repositories are enabled. Contact site administrator.');
   }
   $element['uri']['#description_display'] = 'before';
   return $element;

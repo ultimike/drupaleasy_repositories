@@ -3,10 +3,10 @@
 namespace Drupal\drupaleasy_repositories;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager;
+use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\node\Entity\Node;
 use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\drupaleasy_repositories\Event\RepoUpdatedEvent;
@@ -19,18 +19,18 @@ class DrupaleasyRepositoriesService {
   use StringTranslationTrait;
 
   /**
-   * The plugin.manager.drupaleasy_repositories service.
+   * The plugin manager interface.
    *
-   * @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager
+   * @var \Drupal\Component\Plugin\PluginManagerInterface
    */
-  protected DrupaleasyRepositoriesPluginManager $pluginManagerDrupaleasyRepositories;
+  protected PluginManagerInterface $pluginManagerDrupaleasyRepositories;
 
   /**
-   * The config.factory service.
+   * The configuration factory interface.
    *
-   * @var \Drupal\Core\Config\ConfigFactory
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
-  protected ConfigFactory $configFactory;
+  protected ConfigFactoryInterface $configFactory;
 
   /**
    * The Entity type manager service.
@@ -58,18 +58,18 @@ class DrupaleasyRepositoriesService {
   /**
    * Constructs a DrupaleasyRepositories object.
    *
-   * @param \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager $plugin_manager_drupaleasy_repositories
-   *   The plugin.manager.drupaleasy_repositories service.
-   * @param \Drupal\Core\Config\ConfigFactory $config_factory
-   *   The config.factory service.
+   * @param \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager_drupaleasy_repositories
+   *   The plugin manager interface.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration factory interface.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity_type.manager service.
+   *   The entity type manager interface.
    * @param bool $dry_run
    *   The dry_run parameter.
    * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $event_dispatcher
    *   Drupal's event dispatcher service.
    */
-  public function __construct(DrupaleasyRepositoriesPluginManager $plugin_manager_drupaleasy_repositories, ConfigFactory $config_factory, EntityTypeManagerInterface $entity_type_manager, bool $dry_run, ContainerAwareEventDispatcher $event_dispatcher) {
+  public function __construct(PluginManagerInterface $plugin_manager_drupaleasy_repositories, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, bool $dry_run, ContainerAwareEventDispatcher $event_dispatcher) {
     $this->pluginManagerDrupaleasyRepositories = $plugin_manager_drupaleasy_repositories;
     $this->configFactory = $config_factory;
     $this->entityManager = $entity_type_manager;
@@ -293,7 +293,7 @@ class DrupaleasyRepositoriesService {
   }
 
   /**
-   * Get valid repository URL help text from each plugin.
+   * Get repository URL help text from each enabled plugin.
    *
    * @return string
    *   The help text.
@@ -310,7 +310,7 @@ class DrupaleasyRepositoriesService {
 
     $help = [];
 
-    /** @var DrupaleasyRepositoriesInterface $repository */
+    /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesInterface $repository */
     foreach ($repositories as $repository) {
       $help[] = $repository->validateHelpText();
     }
