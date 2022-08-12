@@ -29,7 +29,7 @@ function drupaleasy_repositories_user_login(UserInterface $account): void {
 function drupaleasy_repositories_cron(): void {
   // Update repository nodes once per day, only between 1am and 2am UTC.
   // Assumes cron runs every hour.
-  // Gets the current UTC hour.
+  // Gets the current GMT hour.
   $hour = time() / 3600 % 24;
   if ($hour == 1) {
     /** @var \Drupal\Core\Entity\EntityStorageInterface $user_storage */
@@ -40,7 +40,6 @@ function drupaleasy_repositories_cron(): void {
 
     // Create a Queue API item for each user.
     foreach ($users as $uid => $user) {
-      /** @var \Drupal\Core\Queue\QueueInterface $queue */
       $queue = \Drupal::queue('drupaleasy_repositories_repository_node_updater');
       $queue->createItem(['uid' => $uid]);
     }
@@ -76,7 +75,7 @@ function _drupaleasy_repositories_url_help_text(&$element): array {
   }
   $element['uri']['#description_display'] = 'before';
   return $element;
-};
+}
 
 /**
  * Custom validation handler for user profile form.

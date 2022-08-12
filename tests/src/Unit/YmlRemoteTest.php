@@ -107,7 +107,7 @@ class YmlRemoteTest extends UnitTestCase {
         TRUE,
       ],
       [
-        'https://www.mysite.com/some%20directory/anything.yaml',
+        'https://www.my-site.com/some%20directory/anything.yaml',
         TRUE,
       ],
       [
