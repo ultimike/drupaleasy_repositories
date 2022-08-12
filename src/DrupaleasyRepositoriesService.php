@@ -94,7 +94,7 @@ class DrupaleasyRepositoriesService {
 
     foreach ($repository_location_ids as $repository_location_id) {
       if (!empty($repository_location_id)) {
-        /** @var DrupaleasyRepositoriesInterface $repository_location */
+        /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesInterface $repository_location */
         $repository_location = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
         // Loop through repository URLs.
         foreach ($account->field_repository_url ?? [] as $url) {
@@ -216,8 +216,8 @@ class DrupaleasyRepositoriesService {
     }
     $results = $query->execute();
     if ($results) {
-      /** @var \Drupal\node\Entity\Node $node */
       $nodes = $node_storage->loadMultiple($results);
+      /** @var \Drupal\node\Entity\Node $node */
       foreach ($nodes as $node) {
         if (!$this->dryRun) {
           $node->delete();
@@ -263,7 +263,7 @@ class DrupaleasyRepositoriesService {
         if ($uri = trim($url['uri'])) {
           $validated = FALSE;
           // Check to see if the URI is valid for any enabled plugins.
-          /** @var DrupaleasyRepositoriesInterface $repository_service */
+          /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesInterface $repository_service */
           foreach ($repository_services as $repository_service) {
             if ($repository_service->validate($uri)) {
               $validated = TRUE;

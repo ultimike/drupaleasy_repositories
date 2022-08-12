@@ -17,20 +17,21 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
  *   cron = {"time" = 60}
  * )
  */
-final class RepositoryNodeUpdater extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+class RepositoryNodeUpdater extends QueueWorkerBase implements ContainerFactoryPluginInterface {
+
   /**
    * The DrupalEasy repositories service.
    *
    * @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService
    */
-  protected $repositoriesService;
+  protected DrupaleasyRepositoriesService $repositoriesService;
 
   /**
    * The Entity type manager service.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected EntityTypeManagerInterface $entityManager;
 
   /**
    * Plugin constructor.
@@ -40,13 +41,13 @@ final class RepositoryNodeUpdater extends QueueWorkerBase implements ContainerFa
    * @param string $plugin_id
    *   The plugin id.
    * @param mixed $plugin_definition
-   *   The plugin definiton.
+   *   The plugin definition.
    * @param \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $drupaleasy_repositories_service
    *   The DrupalEasy repositories service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, DrupaleasyRepositoriesService $drupaleasy_repositories_service, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(array $configuration, string $plugin_id, mixed $plugin_definition, DrupaleasyRepositoriesService $drupaleasy_repositories_service, EntityTypeManagerInterface $entity_type_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->repositoriesService = $drupaleasy_repositories_service;
     $this->entityManager = $entity_type_manager;
@@ -55,7 +56,7 @@ final class RepositoryNodeUpdater extends QueueWorkerBase implements ContainerFa
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): RepositoryNodeUpdater {
     return new static(
       $configuration,
       $plugin_id,
@@ -68,7 +69,7 @@ final class RepositoryNodeUpdater extends QueueWorkerBase implements ContainerFa
   /**
    * {@inheritdoc}
    */
-  public function processItem($data) {
+  public function processItem($data): void {
     if (isset($data['uid'])) {
       $user_storage = $this->entityManager->getStorage('user');
       $account = $user_storage->load($data['uid']);

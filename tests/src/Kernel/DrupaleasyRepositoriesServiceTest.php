@@ -8,6 +8,7 @@ use Drupal\node\Entity\Node;
 use Drupal\Tests\drupaleasy_repositories\Traits\RepositoryContentTypeTrait;
 use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService;
 use Drupal\Core\Extension\ModuleHandler;
+use Drupal\user\UserInterface;
 
 /**
  * Tests methods of the main DrupalEasy Repositories service.
@@ -33,6 +34,13 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
   protected ModuleHandler $moduleHandler;
 
   /**
+   * The admin user property.
+   *
+   * @var \Drupal\user\UserInterface
+   */
+  protected UserInterface $adminUser;
+
+  /**
    * {@inheritdoc}
    */
   protected static $modules = [
@@ -54,8 +62,6 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
     $this->drupaleasyRepositoriesService = $this->container->get('drupaleasy_repositories.service');
-
-    /** @var \Drupal\Core\Extension\ModuleHandler $moduleHandler */
     $this->moduleHandler = $this->container->get('module_handler');
 
     // Enable the .yml repository plugin.

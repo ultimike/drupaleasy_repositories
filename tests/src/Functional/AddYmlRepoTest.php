@@ -149,9 +149,7 @@ class AddYmlRepoTest extends BrowserTestBase {
     $results = $query->execute();
     $session->assert(count($results) == 1, 'One repository node was found.');
 
-    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::entityTypeManager();
-    /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
     $node_storage = $entity_type_manager->getStorage('node');
     /** @var \Drupal\Core\Entity\EntityInterface $node */
     $node = $node_storage->load(reset($results));
