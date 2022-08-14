@@ -19,21 +19,21 @@ final class UpdateRepositoriesForm extends FormBase {
    *
    * @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService
    */
-  protected $repositoriesService;
+  protected DrupaleasyRepositoriesService $repositoriesService;
 
   /**
    * The DrupalEasy repositories batch service.
    *
    * @var \Drupal\drupaleasy_repositories\Batch
    */
-  protected $batch;
+  protected Batch $batch;
 
   /**
    * The Entity type manager service.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected EntityTypeManagerInterface $entityManager;
 
   /**
    * Class constructor.
@@ -47,7 +47,7 @@ final class UpdateRepositoriesForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): UpdateRepositoriesForm {
     return new static(
       $container->get('drupaleasy_repositories.service'),
       $container->get('drupaleasy_repositories.batch'),
