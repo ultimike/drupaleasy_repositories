@@ -4,10 +4,11 @@ namespace Drupal\drupaleasy_repositories;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ExtensionList;
+use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
- * Batch service class to integration with Batch API.
+ * Batch service class to integrate with Batch API.
  */
 class Batch {
 
@@ -18,21 +19,21 @@ class Batch {
    *
    * @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService
    */
-  protected $repositoriesService;
+  protected DrupaleasyRepositoriesService $drupaleasyRepositoriesService;
 
   /**
    * The Entity type manager service.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityTypeManager;
+  protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * The extension list module service.
    *
    * @var \Drupal\Core\Extension\ExtensionList
    */
-  protected $extensionListModule;
+  protected ExtensionList $extensionListModule;
 
   /**
    * Constructor.
@@ -45,7 +46,7 @@ class Batch {
    *   The extension list module service.
    */
   public function __construct(DrupaleasyRepositoriesService $drupaleasy_repositories_service, EntityTypeManagerInterface $entity_type_manager, ExtensionList $extension_list_module) {
-    $this->repositoriesService = $drupaleasy_repositories_service;
+    $this->drupaleasyRepositoriesService = $drupaleasy_repositories_service;
     $this->entityTypeManager = $entity_type_manager;
     $this->extensionListModule = $extension_list_module;
   }
@@ -53,9 +54,10 @@ class Batch {
   /**
    * Updates all user repositories using the Batch API.
    */
-  public function updateAllUserRepositories(bool $drush = FALSE) {
+  public function updateAllUserRepositories(bool $drush = FALSE): void {
     $operations = [];
-    /** @var \Drupal\Core\Entity\EntityStorageInterface $user_storage */
+
+    // Get all active users.
     $user_storage = $this->entityTypeManager->getStorage('user');
     $query = $user_storage->getQuery();
     $query->condition('status', '1');
@@ -70,6 +72,8 @@ class Batch {
       'finished' => 'drupaleasy_update_all_repositories_finished',
       'file' => $this->extensionListModule->getPath('drupaleasy_repositories') . '/drupaleasy_repositories.batch.inc',
     ];
+
+    // Submit the batch for processing.
     batch_set($batch);
     if ($drush) {
       drush_backend_batch_process();
@@ -90,7 +94,7 @@ class Batch {
     /** @var \Drupal\Core\Entity\EntityStorageInterface $user_storage */
     $user_storage = $this->entityTypeManager->getStorage('user');
     $account = $user_storage->load($uid);
-    $this->repositoriesService->updateRepositories($account);
+    $this->drupaleasyRepositoriesService->updateRepositories($account);
     $context['results'][] = $uid;
     $context['results']['num']++;
     $context['message'] = $this->t('Updating repositories belonging to "@username".',

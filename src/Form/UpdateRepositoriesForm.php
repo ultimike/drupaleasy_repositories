@@ -72,6 +72,7 @@ final class UpdateRepositoriesForm extends FormBase {
       '#target_type' => 'user',
       '#title' => $this->t('Username'),
       '#description' => $this->t('Leave blank to update all repository nodes for all users.'),
+      '#required' => FALSE,
     ];
     $form['submit'] = [
       '#type' => 'submit',
