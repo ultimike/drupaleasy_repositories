@@ -127,7 +127,8 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
       // Use $uid = 999 to ensure it is different from $this->adminUser.
       [$repo, 999]
     );
-    $this->assertEquals($expected, $actual);
+    $repo = reset($repo);
+    $this->assertEquals($expected, $actual, "The {$repo['label']}'s uniqueness did not match the expected value.");
   }
 
   /**
@@ -171,7 +172,7 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
     );
     // Only check assertion if no error is expected nor returned.
     if (($expected != '') || ($actual != $expected)) {
-      $this->assertTrue((bool) mb_stristr($actual, $expected));
+      $this->assertTrue((bool) mb_stristr($actual, $expected), "The URLs' validation did not match the expected value.");
     }
   }
 

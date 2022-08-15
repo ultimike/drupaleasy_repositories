@@ -147,7 +147,7 @@ class AddYmlRepoTest extends BrowserTestBase {
     $query = \Drupal::entityQuery('node');
     $query->condition('type', 'repository')->accessCheck(FALSE);
     $results = $query->execute();
-    $session->assert(count($results) == 1, 'One repository node was found.');
+    $session->assert(count($results) == 1, 'Either 0 or more than 1 repository nodes were found.');
 
     $entity_type_manager = \Drupal::entityTypeManager();
     $node_storage = $entity_type_manager->getStorage('node');
@@ -212,7 +212,7 @@ class AddYmlRepoTest extends BrowserTestBase {
     $query = \Drupal::entityQuery('node');
     $query->condition('type', 'repository')->accessCheck(FALSE);
     $results = $query->execute();
-    $session->assert(count($results) == 0, 'No repository nodes were found.');
+    $session->assert(count($results) == 0, 'The repository node was not deleted.');
   }
 
 }

@@ -28,7 +28,7 @@ class Batch {
   protected $entityTypeManager;
 
   /**
-   * The extension list  module service.
+   * The extension list module service.
    *
    * @var \Drupal\Core\Extension\ExtensionList
    */
