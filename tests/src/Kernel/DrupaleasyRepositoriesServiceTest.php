@@ -96,8 +96,11 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
 
   /**
    * Data provider for testIsUnique().
+   *
+   * @return array
+   *   Test data and expected results.
    */
-  public function provideTestIsUnique() {
+  public function provideTestIsUnique(): array {
     $unique_repo_info['superman-repo'] = [
       'label' => 'The Superman repository',
       'description' => 'This is where Superman keeps all his crime-fighting code.',
@@ -118,7 +121,7 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
    * @dataProvider provideTestIsUnique
    * @test
    */
-  public function testIsUnique($expected, $repo) {
+  public function testIsUnique($expected, $repo): void {
     // Use reflection to make isUnique() public.
     $reflection_is_unique = new \ReflectionMethod($this->drupaleasyRepositoriesService, 'isUnique');
     $reflection_is_unique->setAccessible(TRUE);
@@ -133,8 +136,11 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
 
   /**
    * Data provider for testValidateRepositoryUrls().
+   *
+   * @return array
+   *   Test data and expected results.
    */
-  public function provideValidateRepositoryUrls() {
+  public function provideValidateRepositoryUrls(): array {
     // This is run before setup() and other things so $this->container
     // isn't available here!
     return [
@@ -150,7 +156,7 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
    * @dataProvider provideValidateRepositoryUrls
    * @test
    */
-  public function testValidateRepositoryUrls($expected, $urls) {
+  public function testValidateRepositoryUrls($expected, $urls): void {
     // Get the full path to the test .yml file.
     /** @var \Drupal\Core\Extension\Extension $module */
     $module = $this->moduleHandler->getModule('drupaleasy_repositories');

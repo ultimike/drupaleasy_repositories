@@ -33,7 +33,7 @@ final class SettingsForm extends ConfigFormBase {
    *
    * @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginManager
    */
-  protected $repositoriesManager;
+  protected DrupaleasyRepositoriesPluginManager $repositoriesManager;
 
   /**
    * Constructs an SettingsForm object.

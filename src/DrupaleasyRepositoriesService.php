@@ -88,7 +88,7 @@ class DrupaleasyRepositoriesService {
    */
   public function updateRepositories(EntityInterface $account) {
     $repos_info = [];
-    // Use Null Coalesce Operator in case no repositories are active.
+    // Use Null Coalesce Operator in case no repositories are enabled.
     // See https://wiki.php.net/rfc/isset_ternary
     $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories') ?? [];
 
@@ -98,9 +98,9 @@ class DrupaleasyRepositoriesService {
         $repository_location = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
         // Loop through repository URLs.
         foreach ($account->field_repository_url ?? [] as $url) {
-          // Check if URL validates for this repository.
+          // Check if the URL validates for this repository.
           if ($repository_location->validate($url->uri)) {
-            // Confirm repository exists and get metadata.
+            // Confirm the repository exists and get metadata.
             if ($repo_info = $repository_location->getRepo($url->uri)) {
               $repos_info += $repo_info;
             }
@@ -123,7 +123,7 @@ class DrupaleasyRepositoriesService {
    * @return bool
    *   TRUE if successful.
    */
-  protected function updateRepositoryNodes(array $repos_info, EntityInterface $account) {
+  protected function updateRepositoryNodes(array $repos_info, EntityInterface $account): bool {
     if (!$repos_info) {
       return TRUE;
     }
@@ -200,7 +200,7 @@ class DrupaleasyRepositoriesService {
    * @return bool
    *   TRUE if successful.
    */
-  protected function deleteRepositoryNodes(array $repos_info, EntityInterface $account) {
+  protected function deleteRepositoryNodes(array $repos_info, EntityInterface $account): bool {
     // Prepare the storage and query stuff.
     /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
     $node_storage = $this->entityManager->getStorage('node');
@@ -247,17 +247,20 @@ class DrupaleasyRepositoriesService {
     $errors = [];
     $repository_services = [];
 
+    // Get IDs of enabled DrupaleasyRepository plugins.
     $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories') ?? [];
     if (!$repository_location_ids) {
       return 'There are no enabled repository plugins';
     }
 
+    // Instantiate each enabled DruapleasyRepository plugin.
     foreach ($repository_location_ids as $repository_location_id) {
       if (!empty($repository_location_id)) {
         $repository_services[] = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
       }
     }
 
+    // Loop around each Repository URL and attempt to validate.
     foreach ($urls as $url) {
       if (is_array($url)) {
         if ($uri = trim($url['uri'])) {
