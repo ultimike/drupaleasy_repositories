@@ -3,7 +3,7 @@
 namespace Drupal\drupaleasy_repositories\Event;
 
 use Drupal\Component\EventDispatcher\Event;
-use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 
 /**
  * Event that is fired when a repository is updated.
@@ -15,7 +15,7 @@ class RepoUpdatedEvent extends Event {
   /**
    * The node updated.
    *
-   * @var \Drupal\node\Entity\Node
+   * @var \Drupal\node\NodeInterface
    */
   public $node;
 
@@ -29,12 +29,12 @@ class RepoUpdatedEvent extends Event {
   /**
    * Constructs the object.
    *
-   * @param \Drupal\node\Entity\Node $node
+   * @param \Drupal\node\NodeInterface $node
    *   The node that was updated.
    * @param string $action
    *   The action performed on the node.
    */
-  public function __construct(Node $node, string $action) {
+  public function __construct(NodeInterface $node, string $action) {
     $this->node = $node;
     $this->action = $action;
   }

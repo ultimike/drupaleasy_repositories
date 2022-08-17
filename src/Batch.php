@@ -61,7 +61,7 @@ class Batch {
     $user_storage = $this->entityTypeManager->getStorage('user');
     $query = $user_storage->getQuery();
     $query->condition('status', '1');
-    $users = $query->execute();
+    $users = $query->accessCheck(FALSE)->execute();
 
     // Create a Batch API item for each user.
     foreach ($users as $uid => $user) {

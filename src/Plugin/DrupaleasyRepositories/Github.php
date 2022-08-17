@@ -32,12 +32,6 @@ class Github extends DrupaleasyRepositoriesPluginBase {
       // Uncomment the next line to test authentication.
       //$this->client->currentUser()->emails()->allPublic();
     }
-    catch (RuntimeException $th) {
-      $this->messenger->addMessage($this->t('Github error: @error', [
-        '@error' => $th->getMessage(),
-      ]));
-      return FALSE;
-    }
     catch (\Throwable $th) {
       $this->messenger->addMessage($this->t('Github error: @error', [
         '@error' => $th->getMessage(),

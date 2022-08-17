@@ -7,7 +7,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Component\Plugin\PluginManagerInterface;
-use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\drupaleasy_repositories\Event\RepoUpdatedEvent;
 
@@ -147,7 +147,7 @@ class DrupaleasyRepositoriesService {
       $results = $query->execute();
 
       if ($results) {
-        /** @var \Drupal\node\Entity\Node $node */
+        /** @var \Drupal\node\NodeInterface $node */
         $node = $node_storage->load(reset($results));
 
         if ($hash != $node->get('field_hash')->value) {
@@ -167,7 +167,7 @@ class DrupaleasyRepositoriesService {
       }
       else {
         // Repository node doesn't exist - create a new one.
-        /** @var \Drupal\node\Entity\Node $node */
+        /** @var \Drupal\node\NodeInterface $node */
         $node = $node_storage->create([
           'uid' => $account->id(),
           'type' => 'repository',
@@ -217,7 +217,7 @@ class DrupaleasyRepositoriesService {
     $results = $query->execute();
     if ($results) {
       $nodes = $node_storage->loadMultiple($results);
-      /** @var \Drupal\node\Entity\Node $node */
+      /** @var \Drupal\node\NodeInterface $node */
       foreach ($nodes as $node) {
         if (!$this->dryRun) {
           $node->delete();
@@ -253,7 +253,7 @@ class DrupaleasyRepositoriesService {
       return 'There are no enabled repository plugins';
     }
 
-    // Instantiate each enabled DruapleasyRepository plugin.
+    // Instantiate each enabled DrupaleasyRepository plugin.
     foreach ($repository_location_ids as $repository_location_id) {
       if (!empty($repository_location_id)) {
         $repository_services[] = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
@@ -361,12 +361,12 @@ class DrupaleasyRepositoriesService {
   /**
    * Perform tasks when a repository is created or updated.
    *
-   * @param \Drupal\node\Entity\Node $node
+   * @param \Drupal\node\NodeInterface $node
    *   The node that was updated.
    * @param string $action
    *   The action that was performed on the node: updated, created, or deleted.
    */
-  protected function repoUpdated(Node $node, string $action) {
+  protected function repoUpdated(NodeInterface $node, string $action) {
     $event = new RepoUpdatedEvent($node, $action);
     $this->eventDispatcher->dispatch($event, RepoUpdatedEvent::EVENT_NAME);
   }
