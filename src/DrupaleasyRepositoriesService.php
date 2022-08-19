@@ -37,7 +37,7 @@ class DrupaleasyRepositoriesService {
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected EntityTypeManagerInterface $entityManager;
+  protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * The dry-run parameter.
@@ -72,7 +72,7 @@ class DrupaleasyRepositoriesService {
   public function __construct(PluginManagerInterface $plugin_manager_drupaleasy_repositories, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, bool $dry_run, ContainerAwareEventDispatcher $event_dispatcher) {
     $this->pluginManagerDrupaleasyRepositories = $plugin_manager_drupaleasy_repositories;
     $this->configFactory = $config_factory;
-    $this->entityManager = $entity_type_manager;
+    $this->entityTypeManager = $entity_type_manager;
     $this->dryRun = $dry_run;
     $this->eventDispatcher = $event_dispatcher;
   }
@@ -86,30 +86,30 @@ class DrupaleasyRepositoriesService {
    * @return bool
    *   TRUE if successful.
    */
-  public function updateRepositories(EntityInterface $account) {
-    $repos_info = [];
+  public function updateRepositories(EntityInterface $account): bool {
+    $repos_metadata = [];
     // Use Null Coalesce Operator in case no repositories are enabled.
     // See https://wiki.php.net/rfc/isset_ternary
-    $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories') ?? [];
+    $enabled_repository_plugin_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories') ?? [];
 
-    foreach ($repository_location_ids as $repository_location_id) {
-      if (!empty($repository_location_id)) {
+    foreach ($enabled_repository_plugin_ids as $enabled_repository_plugin_id) {
+      if (!empty($enabled_repository_plugin_id)) {
         /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesInterface $repository_location */
-        $repository_location = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
+        $repository_location = $this->pluginManagerDrupaleasyRepositories->createInstance($enabled_repository_plugin_id);
         // Loop through repository URLs.
         foreach ($account->field_repository_url ?? [] as $url) {
           // Check if the URL validates for this repository.
           if ($repository_location->validate($url->uri)) {
             // Confirm the repository exists and get metadata.
-            if ($repo_info = $repository_location->getRepo($url->uri)) {
-              $repos_info += $repo_info;
+            if ($repo_metadata = $repository_location->getRepo($url->uri)) {
+              $repos_metadata += $repo_metadata;
             }
           }
         }
       }
     }
-    return $this->updateRepositoryNodes($repos_info, $account) &&
-      $this->deleteRepositoryNodes($repos_info, $account);
+    return $this->updateRepositoryNodes($repos_metadata, $account) &&
+      $this->deleteRepositoryNodes($repos_metadata, $account);
   }
 
   /**
@@ -129,7 +129,7 @@ class DrupaleasyRepositoriesService {
     }
     // Prepare the storage and query stuff.
     /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
-    $node_storage = $this->entityManager->getStorage('node');
+    $node_storage = $this->entityTypeManager->getStorage('node');
 
     foreach ($repos_info as $key => $info) {
       // Calculate hash value.
@@ -152,7 +152,7 @@ class DrupaleasyRepositoriesService {
 
         if ($hash != $node->get('field_hash')->value) {
           // Something changed, update node.
-          $node->setTitle = $info['label'];
+          $node->setTitle($info['label']);
           $node->set('field_description', $info['description']);
           $node->set('field_machine_name', $key);
           $node->set('field_number_of_issues', $info['num_open_issues']);
@@ -203,7 +203,7 @@ class DrupaleasyRepositoriesService {
   protected function deleteRepositoryNodes(array $repos_info, EntityInterface $account): bool {
     // Prepare the storage and query stuff.
     /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
-    $node_storage = $this->entityManager->getStorage('node');
+    $node_storage = $this->entityTypeManager->getStorage('node');
 
     /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
     $query = $node_storage->getQuery();
@@ -245,18 +245,18 @@ class DrupaleasyRepositoriesService {
    */
   public function validateRepositoryUrls(array $urls, int $uid): string {
     $errors = [];
-    $repository_services = [];
+    $repository_plugins = [];
 
     // Get IDs of enabled DrupaleasyRepository plugins.
-    $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories') ?? [];
-    if (!$repository_location_ids) {
+    $enabled_repository_plugin_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories') ?? [];
+    if (!$enabled_repository_plugin_ids) {
       return 'There are no enabled repository plugins';
     }
 
     // Instantiate each enabled DrupaleasyRepository plugin.
-    foreach ($repository_location_ids as $repository_location_id) {
-      if (!empty($repository_location_id)) {
-        $repository_services[] = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
+    foreach ($enabled_repository_plugin_ids as $enabled_repository_plugin_id) {
+      if (!empty($enabled_repository_plugin_id)) {
+        $repository_plugins[] = $this->pluginManagerDrupaleasyRepositories->createInstance($enabled_repository_plugin_id);
       }
     }
 
@@ -267,12 +267,12 @@ class DrupaleasyRepositoriesService {
           $validated = FALSE;
           // Check to see if the URI is valid for any enabled plugins.
           /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesInterface $repository_service */
-          foreach ($repository_services as $repository_service) {
-            if ($repository_service->validate($uri)) {
+          foreach ($repository_plugins as $repository_plugin) {
+            if ($repository_plugin->validate($uri)) {
               $validated = TRUE;
-              $repo_info = $repository_service->getRepo($uri);
-              if ($repo_info) {
-                if (!$this->isUnique($repo_info, $uid)) {
+              $repo_metadata = $repository_plugin->getRepo($uri);
+              if ($repo_metadata) {
+                if (!$this->isUnique($repo_metadata, $uid)) {
                   $errors[] = $this->t('The repository at %uri has been added by another user.', ['%uri' => $uri]);
                 }
               }
@@ -302,20 +302,20 @@ class DrupaleasyRepositoriesService {
    *   The help text.
    */
   public function getValidatorHelpText(): string {
-    $repositories = [];
-    $repository_location_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories') ?? [];
+    $repository_plugins = [];
+    $enabled_repository_plugin_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories') ?? [];
 
-    foreach ($repository_location_ids as $repository_location_id) {
-      if (!empty($repository_location_id)) {
-        $repositories[] = $this->pluginManagerDrupaleasyRepositories->createInstance($repository_location_id);
+    foreach ($enabled_repository_plugin_ids as $enabled_repository_plugin_id) {
+      if (!empty($enabled_repository_plugin_id)) {
+        $repository_plugins[] = $this->pluginManagerDrupaleasyRepositories->createInstance($enabled_repository_plugin_id);
       }
     }
 
     $help = [];
 
     /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesInterface $repository */
-    foreach ($repositories as $repository) {
-      $help[] = $repository->validateHelpText();
+    foreach ($repository_plugins as $repository_plugin) {
+      $help[] = $repository_plugin->validateHelpText();
     }
 
     if (count($help)) {
@@ -338,7 +338,7 @@ class DrupaleasyRepositoriesService {
    */
   protected function isUnique(array $repo_info, int $uid): bool {
     /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
-    $node_storage = $this->entityManager->getStorage('node');
+    $node_storage = $this->entityTypeManager->getStorage('node');
 
     // Calculate hash value.
     $hash = md5(serialize(array_pop($repo_info)));
