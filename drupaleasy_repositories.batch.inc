@@ -13,9 +13,7 @@
  * @param array|\ArrayAccess $context
  *   Batch API context.
  */
-function drupaleasy_update_repositories_batch_operation(int $uid, &$context) {
-  // @todo Document using 'results' instead of 'sandbox' so it is available in
-  // drupaleasy_update_all_repositories_finished().
+function drupaleasy_update_repositories_batch_operation(int $uid, array|\ArrayAccess &$context): void {
   if (empty($context['results']['num'])) {
     $context['results']['num'] = 0;
   }
@@ -34,7 +32,7 @@ function drupaleasy_update_repositories_batch_operation(int $uid, &$context) {
  * @param array $operations
  *   Array of operations called.
  */
-function drupaleasy_update_all_repositories_finished(bool $success, array $results, array $operations) {
+function drupaleasy_update_all_repositories_finished(bool $success, array $results, array $operations): void {
   if ($success) {
     if (isset($results['num'])) {
       $message = t('Updated repository nodes for @num users.', ['@num' => $results['num']]);

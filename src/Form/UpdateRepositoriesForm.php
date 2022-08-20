@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Form with examples on how to use cache.
  */
-final class UpdateRepositoriesForm extends FormBase {
+class UpdateRepositoriesForm extends FormBase {
 
   /**
    * The DrupalEasy repositories service.
@@ -47,7 +47,7 @@ final class UpdateRepositoriesForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container): UpdateRepositoriesForm {
+  public static function create(ContainerInterface $container) {
     return new static(
       $container->get('drupaleasy_repositories.service'),
       $container->get('drupaleasy_repositories.batch'),
@@ -58,14 +58,14 @@ final class UpdateRepositoriesForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
-    return 'update_repositories';
+  public function getFormId(): string {
+    return 'drupaleasy_repositories_update_repositories';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state): array {
 
     $form['uid'] = [
       '#type' => 'entity_autocomplete',

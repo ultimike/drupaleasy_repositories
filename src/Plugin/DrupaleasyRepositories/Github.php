@@ -5,7 +5,6 @@ namespace Drupal\drupaleasy_repositories\Plugin\DrupaleasyRepositories;
 use Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesPluginBase;
 use Github\Client;
 use Github\AuthMethod;
-use Github\Exception\RuntimeException;
 use Symfony\Component\HttpClient\HttplugClient;
 
 /**
@@ -57,12 +56,6 @@ class Github extends DrupaleasyRepositoriesPluginBase {
     if ($this->authenticate()) {
       try {
         $repo = $this->client->api('repo')->show($parts[1], $parts[2]);
-      }
-      catch (RuntimeException $th) {
-        $this->messenger->addMessage($this->t('Github error: @error', [
-          '@error' => $th->getMessage(),
-        ]));
-        return [];
       }
       catch (\Throwable $th) {
         $this->messenger->addMessage($this->t('Github error: @error', [

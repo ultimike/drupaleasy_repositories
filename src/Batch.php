@@ -4,7 +4,6 @@ namespace Drupal\drupaleasy_repositories;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ExtensionList;
-use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
@@ -90,8 +89,7 @@ class Batch {
    *   an object as sometimes it is an array (when calling from a form) and
    *   sometimes it is an object (when calling from Drush).
    */
-  public function updateRepositoriesBatch(int $uid, &$context) {
-    /** @var \Drupal\Core\Entity\EntityStorageInterface $user_storage */
+  public function updateRepositoriesBatch(int $uid, array|\ArrayAccess &$context): void {
     $user_storage = $this->entityTypeManager->getStorage('user');
     $account = $user_storage->load($uid);
     $this->drupaleasyRepositoriesService->updateRepositories($account);

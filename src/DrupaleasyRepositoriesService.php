@@ -266,7 +266,7 @@ class DrupaleasyRepositoriesService {
         if ($uri = trim($url['uri'])) {
           $validated = FALSE;
           // Check to see if the URI is valid for any enabled plugins.
-          /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesInterface $repository_service */
+          /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesInterface $repository_plugin */
           foreach ($repository_plugins as $repository_plugin) {
             if ($repository_plugin->validate($uri)) {
               $validated = TRUE;
@@ -313,7 +313,7 @@ class DrupaleasyRepositoriesService {
 
     $help = [];
 
-    /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesInterface $repository */
+    /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesInterface $repository_plugin */
     foreach ($repository_plugins as $repository_plugin) {
       $help[] = $repository_plugin->validateHelpText();
     }
