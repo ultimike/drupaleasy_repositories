@@ -6,6 +6,7 @@ use Drush\Commands\DrushCommands;
 use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\drupaleasy_repositories\Batch;
+use Drush\Attributes as CLI;
 
 /**
  * A Drush commandfile.
@@ -25,21 +26,21 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
    *
    * @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService
    */
-  protected $repositoriesService;
+  protected DrupaleasyRepositoriesService $repositoriesService;
 
   /**
    * The Entity type manager service.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * The DrupalEasy repositories batch service.
    *
    * @var \Drupal\drupaleasy_repositories\Batch
    */
-  protected $batch;
+  protected Batch $batch;
 
   /**
    * Constructs a DrupaleasyRepositories object.
@@ -52,40 +53,21 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
    *   The DrupalEasy repositories batch service.
    */
   public function __construct(DrupaleasyRepositoriesService $repositories_service, EntityTypeManagerInterface $entity_type_manager, Batch $batch) {
+    parent::__construct();
     $this->repositoriesService = $repositories_service;
-    $this->entityManager = $entity_type_manager;
+    $this->entityTypeManager = $entity_type_manager;
     $this->batch = $batch;
   }
 
-  /**
-   * Command description here.
-   *
-   * @param array $options
-   *   An associative array of options whose values come from cli, aliases,
-   *   config, etc.
-   *
-   * @option uid
-   *   The user ID of the user to update.
-   * @usage der:update-repositories --uid=2
-   *   Update a user repositories.
-   *
-   * @command der:update-repositories
-   * @aliases der:ur
-   *
-   * With PHP 8, Drush commands can use the new PHP attributes instead of
-   * the @command and @aliases annotations. Example (use this outside of this
-   * comment):
-   *
-   * use Drush\Attributes as CLI;
-   * #[CLI\Command(name: 'der:update-repositories', aliases: ['der:ur'])]
-   *
-   * See https://www.drush.org/latest/commands/ for more info about PHP8
-   * attributes.
-   */
-  public function updateRepositories(array $options = ['uid' => NULL]) {
+  #[CLI\Command(name: 'der:update-repositories', aliases: ['der:ur'])]
+  #[CLI\Option(name: 'uid', description: 'The user ID of the user to update.')]
+  #[CLI\Help(description: 'Update user repositories.', synopsis: 'This command will update all user repositories or all repositories for a single user.')]
+  #[CLI\Usage(name: 'der:update-repositories --uid=2', description: 'Update a user\'s repositories.')]
+  #[CLI\Usage(name: 'der:update-repositories', description: 'Update all user repositories.')]
+  public function updateRepositories(array $options = ['uid' => NULL]): void {
     if (!empty($options['uid'])) {
       /** @var \Drupal\user\UserStorageInterface $user_storage */
-      $user_storage = $this->entityManager->getStorage('user');
+      $user_storage = $this->entityTypeManager->getStorage('user');
 
       $account = $user_storage->load($options['uid']);
       if ($account) {

@@ -52,6 +52,9 @@ class Batch {
 
   /**
    * Updates all user repositories using the Batch API.
+   *
+   * @param bool $drush
+   *   TRUE if being called from a Drush command.
    */
   public function updateAllUserRepositories(bool $drush = FALSE): void {
     $operations = [];
