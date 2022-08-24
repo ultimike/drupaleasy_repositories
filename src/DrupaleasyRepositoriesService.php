@@ -65,7 +65,7 @@ class DrupaleasyRepositoriesService {
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager interface.
    * @param bool $dry_run
-   *   The dry_run parameter.
+   *   The dry_run parameter that specifies whether to save node changes.
    * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $event_dispatcher
    *   Drupal's event dispatcher service.
    */

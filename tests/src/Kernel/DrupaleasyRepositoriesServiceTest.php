@@ -121,7 +121,7 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
    * @dataProvider provideTestIsUnique
    * @test
    */
-  public function testIsUnique($expected, $repo): void {
+  public function testIsUnique(bool $expected, array $repo): void {
     // Use reflection to make isUnique() public.
     $reflection_is_unique = new \ReflectionMethod($this->drupaleasyRepositoriesService, 'isUnique');
     $reflection_is_unique->setAccessible(TRUE);
@@ -156,7 +156,7 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
    * @dataProvider provideValidateRepositoryUrls
    * @test
    */
-  public function testValidateRepositoryUrls($expected, $urls): void {
+  public function testValidateRepositoryUrls(string $expected, array $urls): void {
     // Get the full path to the test .yml file.
     /** @var \Drupal\Core\Extension\Extension $module */
     $module = $this->moduleHandler->getModule('drupaleasy_repositories');
@@ -168,17 +168,11 @@ class DrupaleasyRepositoriesServiceTest extends KernelTestBase {
       }
     }
 
-    // Use reflection to make validateRepositoryUrls() public.
-    $reflection_is_unique = new \ReflectionMethod($this->drupaleasyRepositoriesService, 'validateRepositoryUrls');
-    $reflection_is_unique->setAccessible(TRUE);
-    $actual = $reflection_is_unique->invokeArgs(
-      $this->drupaleasyRepositoriesService,
-      // Use $uid = 999 to ensure it is different from $this->adminUser.
-      [$urls, 999]
-    );
-    // Only check assertion if no error is expected nor returned.
+    $actual = $this->drupaleasyRepositoriesService->validateRepositoryUrls($urls, 999);
+    // Only check assertion if no error is expected nor returned as mb_stristr()
+    // doesn't work when the 'needle' ($expected) is an empty string.
     if (($expected != '') || ($actual != $expected)) {
-      $this->assertTrue((bool) mb_stristr($actual, $expected), "The URLs' validation does not match the expected value.");
+      $this->assertTrue((bool) mb_stristr($actual, $expected), "The URLs' validation does not match the expected value. Actual: {$actual}, Expected: {$expected}");
     }
   }
 
