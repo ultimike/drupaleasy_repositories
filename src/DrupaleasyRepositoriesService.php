@@ -337,17 +337,14 @@ class DrupaleasyRepositoriesService {
    *   Return true if the repository is unique.
    */
   protected function isUnique(array $repo_info, int $uid): bool {
-    /** @var \Drupal\Core\Entity\EntityStorageInterface $node_storage */
     $node_storage = $this->entityTypeManager->getStorage('node');
 
-    // Calculate hash value.
-    $hash = md5(serialize(array_pop($repo_info)));
+    $repo_metadata = array_pop($repo_info);
 
-    // Look for repository nodes with a matching hash.
-    /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
+    // Look for repository nodes with a matching url.
     $query = $node_storage->getQuery();
     $query->condition('type', 'repository')
-      ->condition('field_hash', $hash)
+      ->condition('field_url', $repo_metadata['url'])
       ->condition('uid', $uid, '<>')
       ->accessCheck(FALSE);
     $results = $query->execute();
@@ -359,7 +356,7 @@ class DrupaleasyRepositoriesService {
   }
 
   /**
-   * Perform tasks when a repository is created or updated.
+   * Perform tasks when a repository is created, updated, or deleted.
    *
    * @param \Drupal\node\NodeInterface $node
    *   The node that was updated.
@@ -368,7 +365,7 @@ class DrupaleasyRepositoriesService {
    */
   protected function repoUpdated(NodeInterface $node, string $action) {
     $event = new RepoUpdatedEvent($node, $action);
-    $this->eventDispatcher->dispatch($event, RepoUpdatedEvent::EVENT_NAME);
+    $this->eventDispatcher->dispatch($event, RepoUpdatedEvent::REPO_UPDATED);
   }
 
 }
