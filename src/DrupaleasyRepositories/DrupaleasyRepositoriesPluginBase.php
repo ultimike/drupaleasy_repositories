@@ -21,7 +21,7 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
    *
    * @var object
    */
-  protected object $client;
+  protected Object $client;
 
   /**
    * The messenger service.
