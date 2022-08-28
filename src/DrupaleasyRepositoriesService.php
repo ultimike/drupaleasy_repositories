@@ -7,9 +7,11 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Component\Plugin\PluginManagerInterface;
-use Drupal\node\NodeInterface;
+use Drupal\node\Entity\Node;
 use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\drupaleasy_repositories\Event\RepoUpdatedEvent;
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Component\Datetime\TimeInterface;
 
 /**
  * This is the main class that calls all the enabled plugins.
@@ -56,6 +58,20 @@ class DrupaleasyRepositoriesService {
   protected ContainerAwareEventDispatcher $eventDispatcher;
 
   /**
+   * Cache backend.
+   *
+   * @var \Drupal\Core\Cache\CacheBackendInterface
+   */
+  protected CacheBackendInterface $cache;
+
+  /**
+   * Datetime service.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected TimeInterface $time;
+
+  /**
    * Constructs a DrupaleasyRepositories object.
    *
    * @param \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager_drupaleasy_repositories
@@ -68,13 +84,19 @@ class DrupaleasyRepositoriesService {
    *   The dry_run parameter that specifies whether to save node changes.
    * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $event_dispatcher
    *   Drupal's event dispatcher service.
+   * @param \Drupal\Core\Cache\CacheBackendInterface $cache
+   *   Cache backend.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   Time service.
    */
-  public function __construct(PluginManagerInterface $plugin_manager_drupaleasy_repositories, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, bool $dry_run, ContainerAwareEventDispatcher $event_dispatcher) {
+  public function __construct(PluginManagerInterface $plugin_manager_drupaleasy_repositories, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, bool $dry_run, ContainerAwareEventDispatcher $event_dispatcher, CacheBackendInterface $cache, TimeInterface $time) {
     $this->pluginManagerDrupaleasyRepositories = $plugin_manager_drupaleasy_repositories;
     $this->configFactory = $config_factory;
     $this->entityTypeManager = $entity_type_manager;
     $this->dryRun = $dry_run;
     $this->eventDispatcher = $event_dispatcher;
+    $this->cache = $cache;
+    $this->time = $time;
   }
 
   /**
@@ -86,27 +108,38 @@ class DrupaleasyRepositoriesService {
    * @return bool
    *   TRUE if successful.
    */
-  public function updateRepositories(EntityInterface $account): bool {
+  public function updateRepositories(EntityInterface $account, $bypass_cache = FALSE): bool {
     $repos_metadata = [];
-    // Use Null Coalesce Operator in case no repositories are enabled.
-    // See https://wiki.php.net/rfc/isset_ternary
-    $enabled_repository_plugin_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories') ?? [];
 
-    foreach ($enabled_repository_plugin_ids as $enabled_repository_plugin_id) {
-      if (!empty($enabled_repository_plugin_id)) {
-        /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesInterface $repository_location */
-        $repository_location = $this->pluginManagerDrupaleasyRepositories->createInstance($enabled_repository_plugin_id);
-        // Loop through repository URLs.
-        foreach ($account->field_repository_url ?? [] as $url) {
-          // Check if the URL validates for this repository.
-          if ($repository_location->validate($url->uri)) {
-            // Confirm the repository exists and get metadata.
-            if ($repo_metadata = $repository_location->getRepo($url->uri)) {
-              $repos_metadata += $repo_metadata;
+    $cid = 'drupaleasy_repositories:repositories:' . $account->id();
+    $cache = $this->cache->get($cid);
+    if ($cache && !$bypass_cache) {
+      $repos_metadata = $cache->data;
+    }
+    else {
+
+      // Use Null Coalesce Operator in case no repositories are enabled.
+      // See https://wiki.php.net/rfc/isset_ternary
+      $enabled_repository_plugin_ids = $this->configFactory->get('drupaleasy_repositories.settings')->get('repositories') ?? [];
+
+      foreach ($enabled_repository_plugin_ids as $enabled_repository_plugin_id) {
+        if (!empty($enabled_repository_plugin_id)) {
+          /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositories\DrupaleasyRepositoriesInterface $repository_location */
+          $repository_location = $this->pluginManagerDrupaleasyRepositories->createInstance($enabled_repository_plugin_id);
+          // Loop through repository URLs.
+          foreach ($account->field_repository_url ?? [] as $url) {
+            // Check if the URL validates for this repository.
+            if ($repository_location->validate($url->uri)) {
+              // Confirm the repository exists and get metadata.
+              if ($repo_metadata = $repository_location->getRepo($url->uri)) {
+                $repos_metadata += $repo_metadata;
+              }
             }
           }
         }
       }
+      // Set cache.
+      $this->cache->set($cid, $repos_metadata, $this->time->getRequestTime() + (60));
     }
     return $this->updateRepositoryNodes($repos_metadata, $account) &&
       $this->deleteRepositoryNodes($repos_metadata, $account);
@@ -147,7 +180,7 @@ class DrupaleasyRepositoriesService {
       $results = $query->execute();
 
       if ($results) {
-        /** @var \Drupal\node\NodeInterface $node */
+        /** @var \Drupal\node\Entity\Node $node */
         $node = $node_storage->load(reset($results));
 
         if ($hash != $node->get('field_hash')->value) {
@@ -167,7 +200,7 @@ class DrupaleasyRepositoriesService {
       }
       else {
         // Repository node doesn't exist - create a new one.
-        /** @var \Drupal\node\NodeInterface $node */
+        /** @var \Drupal\node\Entity\Node $node */
         $node = $node_storage->create([
           'uid' => $account->id(),
           'type' => 'repository',
@@ -217,7 +250,7 @@ class DrupaleasyRepositoriesService {
     $results = $query->execute();
     if ($results) {
       $nodes = $node_storage->loadMultiple($results);
-      /** @var \Drupal\node\NodeInterface $node */
+      /** @var \Drupal\node\Entity\Node $node */
       foreach ($nodes as $node) {
         if (!$this->dryRun) {
           $node->delete();
@@ -358,12 +391,12 @@ class DrupaleasyRepositoriesService {
   /**
    * Perform tasks when a repository is created, updated, or deleted.
    *
-   * @param \Drupal\node\NodeInterface $node
+   * @param \Drupal\node\Entity\Node $node
    *   The node that was updated.
    * @param string $action
    *   The action that was performed on the node: updated, created, or deleted.
    */
-  protected function repoUpdated(NodeInterface $node, string $action) {
+  protected function repoUpdated(Node $node, string $action) {
     $event = new RepoUpdatedEvent($node, $action);
     $this->eventDispatcher->dispatch($event, RepoUpdatedEvent::REPO_UPDATED);
   }

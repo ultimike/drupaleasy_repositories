@@ -3,7 +3,6 @@
 namespace Drupal\drupaleasy_repositories\Event;
 
 use Drupal\Component\EventDispatcher\Event;
-use Drupal\node\NodeInterface;
 use Drupal\node\Entity\Node;
 
 /**
