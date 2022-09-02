@@ -376,11 +376,11 @@ class DrupaleasyRepositoriesService {
 
     // Look for repository nodes with a matching url.
     $query = $node_storage->getQuery();
-    $query->condition('type', 'repository')
+    $results = $query->condition('type', 'repository')
       ->condition('field_url', $repo_metadata['url'])
       ->condition('uid', $uid, '<>')
-      ->accessCheck(FALSE);
-    $results = $query->execute();
+      ->accessCheck(FALSE)
+      ->execute();
 
     if (count($results)) {
       return FALSE;
