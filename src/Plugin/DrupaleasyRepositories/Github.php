@@ -12,8 +12,8 @@ use Github\AuthMethod;
  *
  * @DrupaleasyRepositories(
  *   id = "github",
- *   label = @Translation("Github"),
- *   description = @Translation("Github.com")
+ *   label = @Translation("GitHub"),
+ *   description = @Translation("GitHub.com")
  * )
  */
 class Github extends DrupaleasyRepositoriesPluginBase {
