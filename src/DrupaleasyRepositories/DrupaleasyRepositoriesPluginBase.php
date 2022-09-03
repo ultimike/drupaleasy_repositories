@@ -35,7 +35,7 @@ abstract class DrupaleasyRepositoriesPluginBase extends PluginBase implements Dr
    *
    * @var \Drupal\key\KeyRepositoryInterface
    */
-  protected $keyRepository;
+  protected KeyRepositoryInterface $keyRepository;
 
   /**
    * {@inheritdoc}
