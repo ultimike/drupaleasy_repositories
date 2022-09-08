@@ -49,7 +49,7 @@ function drupaleasy_repositories_cron(): void {
 /**
  * Implements hook_form_FORMID_alter().
  */
-function drupaleasy_repositories_form_user_form_alter(&$form, $form_state, $form_id): void {
+function drupaleasy_repositories_form_user_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
   $form['#validate'][] = '_drupaleasy_repositories_user_form_validate';
   $form['actions']['submit']['#submit'][] = '_drupaleasy_repositories_user_form_submit';
 
@@ -65,11 +65,15 @@ function drupaleasy_repositories_form_user_form_alter(&$form, $form_state, $form
  *
  * @param array $element
  *   A render element.
+ * @param Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ * @param array $form
+ *   The form array.
  *
  * @return array
  *   A render element.
  */
-function _drupaleasy_repositories_url_help_text(array &$element): array {
+function _drupaleasy_repositories_url_help_text(array &$element, FormStateInterface &$form_state, array &$form): array {
   /** @var \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $repository_service */
   $repository_service = \Drupal::service('drupaleasy_repositories.service');
   $help_text = $repository_service->getValidatorHelpText();
