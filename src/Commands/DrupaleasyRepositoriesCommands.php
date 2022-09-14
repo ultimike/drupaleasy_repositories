@@ -76,10 +76,15 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
         }
       }
       else {
-        $this->logger()->notice(dt('User doesn\'t exist.'));
+        $this->logger()->alert(dt('User doesn\'t exist.'));
       }
     }
     else {
+      // If --uid=0 was used, then $options['uid'] will be FALSE, not null.
+      if (!is_null($options['uid'])) {
+        $this->logger()->alert(dt('You may not select the Anonymous user.'));
+        return;
+      }
       // Get list of all user IDs to check.
       $this->batch->updateAllUserRepositories(TRUE);
     }

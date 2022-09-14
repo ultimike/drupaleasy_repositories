@@ -6,7 +6,9 @@
         "knplabs/github-api": "^3.3",
         "symfony/http-client": "^5.3",
         "nyholm/psr7": "^1.0",
-        "drupal/key": "^1.0"
+        "drupal/key": "^1.0",
+        "drush/drush": "^11.1",
+        "php": ">=8.0.0"
     },
     "extra": {
         "drush": {

@@ -35,7 +35,7 @@ function drupaleasy_update_repositories_batch_operation(int $uid, array|\ArrayAc
 function drupaleasy_update_all_repositories_finished(bool $success, array $results, array $operations): void {
   if ($success) {
     if (isset($results['num'])) {
-      $message = t('Updated repository nodes for @num users.', ['@num' => $results['num']]);
+      $message = \Drupal::translation()->formatPlural($results['num'], 'Updated repository nodes for @count user.', 'Updated repository nodes for @count users.');
     }
     else {
       $message = t('Zero repositories updated.');

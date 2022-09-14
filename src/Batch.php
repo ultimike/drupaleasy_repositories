@@ -5,6 +5,7 @@ namespace Drupal\drupaleasy_repositories;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ExtensionList;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService;
 
 /**
  * Batch service class to integrate with Batch API.
@@ -88,7 +89,7 @@ class Batch {
    * @param int $uid
    *   User ID to update.
    * @param array|\ArrayAccess $context
-   *   Context for operations. We do not want to typehint this as an array or
+   *   Context for operations. We do not want to type hint this as an array or
    *   an object as sometimes it is an array (when calling from a form) and
    *   sometimes it is an object (when calling from Drush).
    */

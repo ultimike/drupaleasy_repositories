@@ -33,7 +33,7 @@ class UpdateRepositoriesForm extends FormBase {
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected EntityTypeManagerInterface $entityManager;
+  protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * Class constructor.
@@ -41,13 +41,13 @@ class UpdateRepositoriesForm extends FormBase {
   public function __construct(DrupaleasyRepositoriesService $repositories_service, Batch $batch, EntityTypeManagerInterface $entity_type_manager) {
     $this->repositoriesService = $repositories_service;
     $this->batch = $batch;
-    $this->entityManager = $entity_type_manager;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): UpdateRepositoriesForm {
     return new static(
       $container->get('drupaleasy_repositories.service'),
       $container->get('drupaleasy_repositories.batch'),
@@ -86,10 +86,19 @@ class UpdateRepositoriesForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    if (!is_null($form_state->getValue('uid')) && ($form_state->getValue('uid') == 0)) {
+      $form_state->setErrorByName('uid', $this->t('You may not select the Anonymous user.'));
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     if ($uid = $form_state->getValue('uid')) {
       /** @var \Drupal\user\UserStorageInterface $user_storage */
-      $user_storage = $this->entityManager->getStorage('user');
+      $user_storage = $this->entityTypeManager->getStorage('user');
 
       $account = $user_storage->load($uid);
       if ($account) {
