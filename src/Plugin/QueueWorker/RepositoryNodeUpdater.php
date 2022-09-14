@@ -31,7 +31,7 @@ class RepositoryNodeUpdater extends QueueWorkerBase implements ContainerFactoryP
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected EntityTypeManagerInterface $entityManager;
+  protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * Plugin constructor.
@@ -50,13 +50,13 @@ class RepositoryNodeUpdater extends QueueWorkerBase implements ContainerFactoryP
   public function __construct(array $configuration, string $plugin_id, mixed $plugin_definition, DrupaleasyRepositoriesService $drupaleasy_repositories_service, EntityTypeManagerInterface $entity_type_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->repositoriesService = $drupaleasy_repositories_service;
-    $this->entityManager = $entity_type_manager;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, mixed $plugin_definition) {
     return new static(
       $configuration,
       $plugin_id,
@@ -71,7 +71,7 @@ class RepositoryNodeUpdater extends QueueWorkerBase implements ContainerFactoryP
    */
   public function processItem($data): void {
     if (isset($data['uid'])) {
-      $user_storage = $this->entityManager->getStorage('user');
+      $user_storage = $this->entityTypeManager->getStorage('user');
       $account = $user_storage->load($data['uid']);
       $this->repositoriesService->updateRepositories($account);
     }
