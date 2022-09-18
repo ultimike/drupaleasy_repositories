@@ -2,6 +2,7 @@
 
 namespace Drupal\drupaleasy_repositories;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -104,11 +105,13 @@ class DrupaleasyRepositoriesService {
    *
    * @param \Drupal\Core\Entity\EntityInterface $account
    *   The user account whose repositories to update.
+   * @param bool $bypass_cache
+   *   For a cache bypass when the user profile is updated.
    *
    * @return bool
    *   TRUE if successful.
    */
-  public function updateRepositories(EntityInterface $account, $bypass_cache = FALSE): bool {
+  public function updateRepositories(EntityInterface $account, bool $bypass_cache = FALSE): bool {
     $repos_metadata = [];
 
     $cid = 'drupaleasy_repositories:repositories:' . $account->id();
@@ -140,6 +143,7 @@ class DrupaleasyRepositoriesService {
       }
       // Set cache.
       $this->cache->set($cid, $repos_metadata, $this->time->getRequestTime() + (60));
+      //$this->cache->set($cid, $repos_metadata, Cache::PERMANENT, ['user:' . $account->id()]);
     }
     return $this->updateRepositoryNodes($repos_metadata, $account) &&
       $this->deleteRepositoryNodes($repos_metadata, $account);

@@ -2,6 +2,7 @@
 
 namespace Drupal\drupaleasy_repositories\Commands;
 
+use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drush\Commands\DrushCommands;
 use Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -43,6 +44,13 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
   protected Batch $batch;
 
   /**
+   * Cache backend.
+   *
+   * @var \Drupal\Core\Cache\CacheTagsInvalidatorInterface
+   */
+  protected CacheTagsInvalidatorInterface $cacheInvalidator;
+
+  /**
    * Constructs a DrupaleasyRepositories object.
    *
    * @param \Drupal\drupaleasy_repositories\DrupaleasyRepositoriesService $repositories_service
@@ -51,12 +59,15 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
    *   The entity_type.manager service.
    * @param \Drupal\drupaleasy_repositories\Batch $batch
    *   The DrupalEasy repositories batch service.
+   * @param \Drupal\Core\Cache\CacheTagsInvalidatorInterface $cacheInvalidator
+   *   Cache invalidator service.
    */
-  public function __construct(DrupaleasyRepositoriesService $repositories_service, EntityTypeManagerInterface $entity_type_manager, Batch $batch) {
+  public function __construct(DrupaleasyRepositoriesService $repositories_service, EntityTypeManagerInterface $entity_type_manager, Batch $batch, CacheTagsInvalidatorInterface $cache_invalidator) {
     parent::__construct();
     $this->repositoriesService = $repositories_service;
     $this->entityTypeManager = $entity_type_manager;
     $this->batch = $batch;
+    $this->cacheInvalidator = $cache_invalidator;
   }
 
   #[CLI\Command(name: 'der:update-repositories', aliases: ['der:ur'])]
@@ -88,6 +99,9 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
       // Get list of all user IDs to check.
       $this->batch->updateAllUserRepositories(TRUE);
     }
+
+    // Invalidate the render cache for MyRespositoriesStatsBlock.
+    $this->cacheInvalidator->invalidateTags(['drupaleasy_repositories']);
   }
 
 }
