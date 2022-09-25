@@ -142,8 +142,8 @@ class DrupaleasyRepositoriesService {
         }
       }
       // Set cache.
-      $this->cache->set($cid, $repos_metadata, $this->time->getRequestTime() + (60));
-      //$this->cache->set($cid, $repos_metadata, Cache::PERMANENT, ['user:' . $account->id()]);
+      //$this->cache->set($cid, $repos_metadata, $this->time->getRequestTime() + (60));
+      $this->cache->set($cid, $repos_metadata, Cache::PERMANENT, ['user:' . $account->id()]);
     }
     return $this->updateRepositoryNodes($repos_metadata, $account) &&
       $this->deleteRepositoryNodes($repos_metadata, $account);

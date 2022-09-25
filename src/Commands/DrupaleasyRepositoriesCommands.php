@@ -59,7 +59,7 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
    *   The entity_type.manager service.
    * @param \Drupal\drupaleasy_repositories\Batch $batch
    *   The DrupalEasy repositories batch service.
-   * @param \Drupal\Core\Cache\CacheTagsInvalidatorInterface $cacheInvalidator
+   * @param \Drupal\Core\Cache\CacheTagsInvalidatorInterface $cache_invalidator
    *   Cache invalidator service.
    */
   public function __construct(DrupaleasyRepositoriesService $repositories_service, EntityTypeManagerInterface $entity_type_manager, Batch $batch, CacheTagsInvalidatorInterface $cache_invalidator) {
@@ -100,7 +100,7 @@ class DrupaleasyRepositoriesCommands extends DrushCommands {
       $this->batch->updateAllUserRepositories(TRUE);
     }
 
-    // Invalidate the render cache for MyRespositoriesStatsBlock.
+    // Invalidate the cache for anything with the drupaleasy_repositories tag.
     $this->cacheInvalidator->invalidateTags(['drupaleasy_repositories']);
   }
 

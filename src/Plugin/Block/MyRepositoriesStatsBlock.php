@@ -2,12 +2,13 @@
 
 namespace Drupal\drupaleasy_repositories\Plugin\Block;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Session\AccountProxy;
-use Drupal\Core\Cache\Cache;
+use Drupal\Component\Datetime\TimeInterface;
 
 /**
  * Provides a My repositories stats block.
@@ -35,6 +36,13 @@ class MyRepositoriesStatsBlock extends BlockBase implements ContainerFactoryPlug
   protected AccountProxy $currentUser;
 
   /**
+   * Datetime service.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected TimeInterface $time;
+
+  /**
    * Plugin constructor.
    *
    * @param array $configuration
@@ -47,11 +55,14 @@ class MyRepositoriesStatsBlock extends BlockBase implements ContainerFactoryPlug
    *   The entity type manager service.
    * @param \Drupal\Core\Session\AccountProxy $current_user
    *   The current user.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   Time service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, AccountProxy $current_user) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, AccountProxy $current_user, TimeInterface $time) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->currentUser = $current_user;
+    $this->time = $time;
   }
 
   /**
@@ -64,6 +75,7 @@ class MyRepositoriesStatsBlock extends BlockBase implements ContainerFactoryPlug
       $plugin_definition,
       $container->get('entity_type.manager'),
       $container->get('current_user'),
+      $container->get('datetime.time'),
     );
   }
 
@@ -72,27 +84,21 @@ class MyRepositoriesStatsBlock extends BlockBase implements ContainerFactoryPlug
    */
   public function build(): array {
     $build['content'] = [
-      // Why does user name not work with user.roles cache context?
-//      '#markup' => $this->t('Hello, @name, the total number of comments: %number.',
-//        [
-//          '@name' => $this->currentUser->getAccountName(),
-//          '%number' => $this->calculateTotalComments(),
-//        ]
-//      ),
-      '#markup' => $this->t('Random number: @random_number, the total number of comments: %number.',
-        [
-          // Change to date with seconds.
-          '@random_number' => random_int(1, 9999),
-          '%number' => $this->calculateTotalComments(),
-        ]
-      ),
+      '#theme' => 'item_list',
+      '#list_type' => 'ul',
+      '#items' => [
+        $this->t('Current user: @name', ['@name' => $this->currentUser->getAccountName()]),
+        $this->t('Current timestamp: @timestamp', ['@timestamp' => $this->time->getCurrentTime()]),
+        $this->t('Total number of comments in all repository nodes: @all', ['@all' => $this->calculateTotalComments()]),
+        $this->t('Total number of comments in my repository nodes: @my', ['@my' => $this->calculateTotalComments($this->currentUser->id())]),
+      ],
     ];
 
     $build['#cache'] = [
-      'contexts' => ['user.roles'],
+      'contexts' => ['user.roles', 'user'],
       'tags' => ['node_list:repository', 'drupaleasy_repositories'],
       'max-age' => Cache::PERMANENT,
-      // Uncomment for BigPipe example.
+      // Uncomment for BigPipe demo.
       //'max-age' => 0,
     ];
 
@@ -102,10 +108,13 @@ class MyRepositoriesStatsBlock extends BlockBase implements ContainerFactoryPlug
   /**
    * Calculates the total number of comments for a user's repositories.
    *
+   * @param int $uid
+   *   An (optional) user to filter on.
+   *
    * @return int
    *   The total number of comments.
    */
-  protected function calculateTotalComments(): int {
+  protected function calculateTotalComments($uid = NULL): int {
     // Uncomment for BigPipe example.
     //usleep(3000000);
 
@@ -114,9 +123,9 @@ class MyRepositoriesStatsBlock extends BlockBase implements ContainerFactoryPlug
     $query = $node_storage->getQuery();
     $query->condition('type', 'repository')
       ->condition('status', 1);
-//    if ($uid) {
-//      $query->condition('uid', $this->currentUser->id())
-//    }
+    if ($uid) {
+      $query->condition('uid', $uid);
+    }
     $results = $query->accessCheck(FALSE)->execute();
 
     foreach ($results as $nid) {

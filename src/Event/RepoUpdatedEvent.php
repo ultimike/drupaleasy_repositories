@@ -10,6 +10,13 @@ use Drupal\node\Entity\Node;
  */
 class RepoUpdatedEvent extends Event {
 
+  /**
+   * The name of the event triggered when a repository is updated.
+   *
+   * @Event
+   *
+   * @var string
+   */
   const REPO_UPDATED = 'drupaleasy_repositories_repo_updated';
 
   /**
