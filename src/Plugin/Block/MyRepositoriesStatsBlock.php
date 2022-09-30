@@ -89,8 +89,8 @@ class MyRepositoriesStatsBlock extends BlockBase implements ContainerFactoryPlug
       '#items' => [
         $this->t('Current user: @name', ['@name' => $this->currentUser->getAccountName()]),
         $this->t('Current timestamp: @timestamp', ['@timestamp' => $this->time->getCurrentTime()]),
-        $this->t('Total number of comments in all repository nodes: @all', ['@all' => $this->calculateTotalComments()]),
-        $this->t('Total number of comments in my repository nodes: @my', ['@my' => $this->calculateTotalComments($this->currentUser->id())]),
+        $this->t('Total number of issues in all repository nodes: @all', ['@all' => $this->calculateTotalIssues()]),
+        $this->t('Total number of issues in my repository nodes: @my', ['@my' => $this->calculateTotalIssues($this->currentUser->id())]),
       ],
     ];
 
@@ -106,15 +106,15 @@ class MyRepositoriesStatsBlock extends BlockBase implements ContainerFactoryPlug
   }
 
   /**
-   * Calculates the total number of comments for a user's repositories.
+   * Calculates the total number of issues for a user's repositories.
    *
    * @param int $uid
    *   An (optional) user to filter on.
    *
    * @return int
-   *   The total number of comments.
+   *   The total number of issues.
    */
-  protected function calculateTotalComments($uid = NULL): int {
+  protected function calculateTotalIssues($uid = NULL): int {
     // Uncomment for BigPipe example.
     //usleep(3000000);
 
